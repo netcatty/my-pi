@@ -1,0 +1,79 @@
+#!/bin/sh
+# ─────────────────────────────────────────────────────────────
+#  pre-commit：拦截密钥与内部地址
+#
+#  安装：git config core.hooksPath .githooks
+#  绕过：git commit --no-verify
+# ─────────────────────────────────────────────────────────────
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$STAGED" ] && exit 0
+
+FAIL=0
+report() {
+  FAIL=1
+  printf '  ✗ %s\n' "$1"
+  printf '      %s\n' "$2"
+}
+
+printf '\n🔍 pre-commit 密钥审计\n\n'
+
+# ── 1. 敏感文件名 ──
+for f in $STAGED; do
+  case "$f" in
+    auth.json|*/auth.json)
+      report "$f" "凭据文件，禁止提交" ;;
+    models.json|*/models.json)
+      report "$f" "含内部地址；请改用 models.example.json" ;;
+    mcp.json|*/mcp.json)
+      report "$f" "含本地服务令牌；请改用 mcp.example.json" ;;
+    *.env|*.env.*|*.pem|*.key)
+      report "$f" "疑似密钥文件" ;;
+    *.example.json)
+      : ;;   # 模板文件放行
+    models-store.json|trust.json)
+      report "$f" "机器本地状态" ;;
+    *.bak|*.bak-*)
+      report "$f" "备份文件" ;;
+  esac
+done
+
+# ── 2. 内容扫描 ──
+for f in $STAGED; do
+  [ -f "$f" ] || continue
+
+  # 2a. API key / token 特征
+  HIT=$(grep -nE '--[A-Za-z0-9]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}' "$f" 2>/dev/null | head -3)
+  [ -n "$HIT" ] && report "$f" "API key: $(echo "$HIT" | head -1 | cut -c1-80)"
+
+  # 2b. 32+ 位十六进制串（排除占位符行）
+  HIT=$(grep -nE '[a-f0-9]{32,}' "$f" 2>/dev/null \
+        | grep -vE '\$\{|\$[A-Z_]+|example\.com|schema|sha256|integrity' | head -3)
+  [ -n "$HIT" ] && report "$f" "长十六进制串: $(echo "$HIT" | head -1 | cut -c1-80)"
+
+  # 2c. 私钥
+  HIT=$(grep -nE -- '-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" 2>/dev/null | head -2)
+  [ -n "$HIT" ] && report "$f" "私钥块"
+
+  # 2d. token/secret 赋值（值为 12+ 字符的字面量；排除占位符）
+  HIT=$(grep -nEi '(token|secret|password|passwd|api[_-]?key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{12,}["'"'"']' "$f" 2>/dev/null \
+        | grep -vE '\$\{|\$[A-Z_]+|example\.com|your-|placeholder|xxxx|\.\.\.|<[a-z]' | head -3)
+  [ -n "$HIT" ] && report "$f" "明文赋值: $(echo "$HIT" | head -1 | cut -c1-80)"
+
+  # 2e. 非公开域名（白名单之外）
+  HIT=$(grep -noE 'https?://[A-Za-z0-9._-]+' "$f" 2>/dev/null \
+        | sed 's|.*https\?://||' \
+        | sort -u \
+        | grep -viE '^(github\.com|api\.github\.com|raw\.githubusercontent\.com|api\.deepseek\.com|pi\.dev|linux\.do|json-schema\.org|agentskills\.io|localhost|127\.0\.0\.1|docs\.python\.org|en\.wikipedia\.org|www\.conventionalcommits\.org|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.sheetjs\.com|www\.apache\.org|schemas\.microsoft\.com|manus\.im|skills\.sh|example\.com)$' \
+        | grep -viE '\.example\.com$' | head -3)
+  [ -n "$HIT" ] && report "$f" "非白名单域名: $(echo "$HIT" | tr '\n' ' ' | cut -c1-80)"
+done
+
+# ── 结果 ──
+if [ "$FAIL" -eq 0 ]; then
+  printf '✅ 审计通过\n\n'
+  exit 0
+fi
+
+printf '\n⛔ 提交已拦截。修正后重试，或 git commit --no-verify 强制提交。\n\n'
+exit 1

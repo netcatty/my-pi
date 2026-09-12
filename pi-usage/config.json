@@ -1,0 +1,30 @@
+{
+  "display": {
+    "status": true,
+    "widget": false,
+    "detailsDefault": "all"
+  },
+  "refresh": {
+    "intervalSeconds": 120,
+    "timeoutSeconds": 10
+  },
+  "skills": {
+    "enabled": true
+  },
+  "adapters": {
+    "deepseek": { "enabled": true },
+    "cliproxyPiBridge": { "enabled": true },
+    "openaiCodex": { "enabled": true },
+    "xai": { "enabled": true },
+    "anthropic": { "enabled": true },
+    "glm": { "enabled": true },
+    "openrouter": { "enabled": true },
+    "opencodeGo": { "enabled": true },
+    "kimiCoding": { "enabled": true }
+  },
+  "providerOverrides": {
+    "claude-jw-sun": "disabled",
+    "claude-tt-wed": "disabled",
+    "hyb": "disabled"
+  }
+}

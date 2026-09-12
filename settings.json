@@ -1,0 +1,47 @@
+{
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 65536,
+    "keepRecentTokens": 40960
+  },
+  "defaultModel": "deepseek-flash",
+  "defaultProvider": "deepseek",
+  "defaultThinkingLevel": "medium",
+  "defaultTools": [
+    "read",
+    "write",
+    "edit",
+    "ls",
+    "grep",
+    "find",
+    "powershell"
+  ],
+  "fullscreenExitOutput": "transcript",
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.85.1",
+  "markdown": {
+    "mermaid": "final"
+  },
+  "packages": [
+    "npm:pi-open-tui",
+    "npm:pi-tool-display",
+    "npm:pi-mcp-adapter",
+    "npm:@gotgenes/pi-permission-system",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@wayner6/pi-usage"
+  ],
+  "quietStartup": true,
+  "retry": {
+    "baseDelayMs": 10000,
+    "enabled": true,
+    "maxRetries": 10,
+    "provider": {
+      "maxRetryDelayMs": 120000
+    }
+  },
+  "showCacheMissNotices": false,
+  "theme": "dark",
+  "transport": "auto",
+  "treeFilterMode": "no-tools",
+  "tuiMode": "fullscreen"
+}

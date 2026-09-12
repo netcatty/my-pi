@@ -1,0 +1,38 @@
+{
+  "$comment": "复制为 ~/.pi/agent/mcp.json 后替换 ${...} 占位符。见 README 的「mcp.json」一节。",
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--executablePath",
+        "${CHROME_EXECUTABLE}",
+        "--no-usage-statistics"
+      ]
+    },
+    "dbx-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@dbx-app/mcp-server"],
+      "env": {
+        "DBX_DATA_DIR": "${DBX_DATA_DIR}"
+      }
+    },
+    "oxideterm-mcp-server": {
+      "command": "oxideterm",
+      "args": ["mcp", "bridge"],
+      "env": {
+        "OXIDETERM_MCP_ENDPOINT": "http://127.0.0.1:55778/mcp",
+        "OXIDETERM_MCP_TOKEN": "${OXIDETERM_MCP_TOKEN}"
+      }
+    },
+    "siyuan-mcp-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@fromsko/siyuan-mcp-server"],
+      "env": {
+        "SIYUAN_TOKEN": "${SIYUAN_TOKEN}"
+      }
+    }
+  }
+}

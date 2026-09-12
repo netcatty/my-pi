@@ -1,0 +1,19 @@
+# 统一换行：仓库内一律 LF，避免跨机器 diff 噪声
+* text=auto eol=lf
+
+# Windows 脚本保留 CRLF（部分工具依赖）
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制
+*.exe binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# 锁文件不参与 diff 合并
+package-lock.json -diff

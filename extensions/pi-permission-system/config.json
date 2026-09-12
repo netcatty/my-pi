@@ -1,0 +1,128 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gotgenes/pi-packages/refs/heads/main/packages/pi-permission-system/schemas/permissions.schema.json",
+  "debugLog": false,
+  "permissionReviewLog": false,
+  "yoloMode": false,
+
+  "permission": {
+    "*": "allow",
+
+    "external_directory": {
+      "*": "ask"
+    },
+
+    "path": {
+      "*": "allow",
+
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+
+      "~/.ssh/*": "deny",
+
+      "~/.pi/agent/auth.json": "deny",
+      "~/.pi/agent/models.json": "deny",
+      "~/.pi/agent/models-store.json": "deny",
+      "~/.pi/agent/mcp.json": "deny",
+
+      "~/.pi/agent/settings.json": "ask",
+      "~/.pi/agent/trust.json": "ask",
+      "~/.pi/agent/SYSTEM.md": "ask",
+      "~/.pi/agent/APPEND_SYSTEM.md": "ask",
+      "~/.pi/agent/npm/package.json": "ask",
+      "~/.pi/agent/npm/package-lock.json": "ask",
+      "~/.pi/agent/extensions/pi-permission-system/config.json": "ask"
+    },
+
+    "bash": {
+      "*": "allow",
+
+      "cmd *": "ask",
+      "cmd.exe *": "ask",
+      "CMD *": "ask",
+      "CMD.exe *": "ask",
+      "powershell *": "ask",
+      "powershell.exe *": "ask",
+      "PowerShell *": "ask",
+      "PowerShell.exe *": "ask",
+      "pwsh *": "ask",
+      "pwsh.exe *": "ask",
+      "Pwsh *": "ask",
+      "Pwsh.exe *": "ask",
+      "bash *": "ask",
+      "sh *": "ask",
+      "dash *": "ask",
+      "zsh *": "ask",
+      "fish *": "ask",
+
+      "rm *": "ask",
+      "del *": "ask",
+      "erase *": "ask",
+      "rd *": "ask",
+      "rmdir *": "ask",
+      "mv *": "ask",
+
+      "git clean *": "ask",
+      "git reset --hard *": "ask",
+      "git checkout -- *": "ask",
+      "git restore *": "ask",
+      "git branch -D *": "ask",
+      "git stash drop *": "ask",
+      "git stash clear *": "ask",
+
+      "git push *": "ask",
+      "gh pr create *": "ask",
+      "gh pr merge *": "ask",
+      "gh pr close *": "ask",
+      "gh release create *": "ask",
+      "gh release delete *": "ask",
+      "npm publish *": "ask",
+      "pnpm publish *": "ask",
+      "yarn npm publish *": "ask",
+      "cargo publish *": "ask",
+      "twine upload *": "ask",
+
+      "ssh *": "ask",
+      "scp *": "ask",
+      "sftp *": "ask",
+      "curl *": "ask",
+      "wget *": "ask",
+
+      "npx *": "ask",
+      "pnpm dlx *": "ask",
+      "yarn dlx *": "ask",
+      "bunx *": "ask",
+      "uvx *": "ask",
+      "npm install *": "ask",
+      "npm i *": "ask",
+      "npm ci *": "ask",
+      "npm update *": "ask",
+      "pnpm install *": "ask",
+      "pnpm i *": "ask",
+      "pnpm add *": "ask",
+      "pnpm update *": "ask",
+      "yarn install *": "ask",
+      "yarn add *": "ask",
+      "yarn up *": "ask",
+      "bun install *": "ask",
+      "bun i *": "ask",
+      "bun add *": "ask",
+      "pip install *": "ask",
+      "pip3 install *": "ask",
+      "python -m pip install *": "ask",
+      "python3 -m pip install *": "ask",
+      "py -m pip install *": "ask",
+      "uv add *": "ask",
+      "uv sync *": "ask",
+      "uv pip install *": "ask",
+      "pipx install *": "ask",
+      "pipx run *": "ask",
+      "cargo install *": "ask",
+      "go install *": "ask",
+      "gem install *": "ask",
+
+      "grep *": "deny",
+      "find *": "deny"
+    }
+  }
+}
