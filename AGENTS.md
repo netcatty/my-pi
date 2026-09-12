@@ -58,8 +58,8 @@
   - 其他交给用户
 - 个人待办 `todo-list`（`ta#`）
 - 独立上下文任务
-  1. `push-task` 排队（prompt 自包含）
-  2. `task` 驱动
+  1. `push_task` 排队（prompt 自包含）
+  2. `task_control` 驱动
   3. `/auto`
 
 ## 工具

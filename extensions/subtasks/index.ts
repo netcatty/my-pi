@@ -2,7 +2,7 @@
  * Subtasks — 用 session tree 实现"伪 subagent"
  *
  * 机制：
- *   1. agent 调 `push-task` 排队任务（不执行）
+ *   1. agent 调 `push_task` 排队任务（不执行）
  *   2. `/start-task [model]` → 跳到分支起点（fresh context）→ 自动发送 prompt
  *   3. 任务在分支里执行
  *   4. `/finish-task` → 回主分支 → 最后一条 assistant 消息作为结果注入
@@ -52,7 +52,7 @@ type TaskStartEntry = SessionEntry & {
   data: TaskStartData;
 };
 
-// ── 工具：push-task ───────────────────────────────────────────────
+// ── 工具：push_task ───────────────────────────────────────────────
 
 const pushTaskParameters = Type.Object({
   title: Type.String({ description: "任务的简短标题。" }),
@@ -99,17 +99,17 @@ function parseTaskInput(raw: string): TaskData | null {
 
 function toolPushTask(pi: ExtensionAPI): ToolDefinition {
   return defineTool({
-    name: "push-task",
+    name: "push_task",
     label: "Push Task",
     description: "把任务存入队列，等待用户用 /start-task 在独立分支中启动。",
     promptSnippet: "把自包含的任务排队，供用户在独立分支中执行。",
     promptGuidelines: [
-      "用 push-task 交付需要独立上下文的任务（审查、探索、批量实现）；一轮可以排多个。",
-      "push-task 只入队。需要执行时接着调 task(action: \"start\") 启动队首、或 task(action: \"auto\") 跑完队列；否则排完就停下汇报。",
+      "用 push_task 交付需要独立上下文的任务（审查、探索、批量实现）；一轮可以排多个。",
+      "push_task 只入队。需要执行时接着调 task_control(action: \"start\") 启动队首、或 task_control(action: \"auto\") 跑完队列；否则排完就停下汇报。",
     ],
     parameters: pushTaskParameters,
     renderCall(args, theme, context) {
-      const header = `${theme.fg("success", "＋")} ${theme.fg("toolTitle", theme.bold(`push-task: ${args.title.trim()}`))}`;
+      const header = `${theme.fg("success", "＋")} ${theme.fg("toolTitle", theme.bold(`push_task: ${args.title.trim()}`))}`;
       const lines = args.prompt.split("\n");
       const max = context.expanded ? lines.length : 5;
       const shown = lines.slice(0, max).map((l) => theme.fg("dim", l.trimEnd() || " "));
@@ -160,7 +160,7 @@ function checkAction(sm: { getBranch(): SessionEntry[] }, action: TaskAction): s
   switch (action) {
     case "start":
       if (active) return "已在任务分支内：先 finish（带回结果）或 abort（丢弃结果）。";
-      return hasPending ? null : "没有排队任务，先用 push-task 排队。";
+      return hasPending ? null : "没有排队任务，先用 push_task 排队。";
     case "finish":
     case "abort":
       return active ? null : "当前不在任务分支内。";
@@ -177,13 +177,13 @@ function registerTaskTool(pi: ExtensionAPI): void {
 
   pi.registerTool(
     defineTool({
-      name: "task",
+      name: "task_control",
       label: "Task Control",
       description: "控制任务分支：启动/结束/中止/丢弃排队任务，或自动跑完队列（等同 /start-task 等斜杠命令）。",
       promptSnippet: "驱动任务队列（start/finish/abort/discard/auto），效果等同对应斜杠命令。",
       promptGuidelines: [
-        "用 push-task 排队后用 task(action: \"start\") 在独立分支执行；任务分支里完成工作后用 task(action: \"finish\") 把结果带回主分支。",
-        "task(action: \"auto\") 会依次跑完整个队列（start → finish 循环），适合批量任务。",
+        "用 push_task 排队后用 task_control(action: \"start\") 在独立分支执行；任务分支里完成工作后用 task_control(action: \"finish\") 把结果带回主分支。",
+        "task_control(action: \"auto\") 会依次跑完整个队列（start → finish 循环），适合批量任务。",
         "动作在本轮回复结束后才生效，不要在调用后用工具去确认它的效果。",
       ],
       parameters: Type.Object({
@@ -423,7 +423,7 @@ function taskHints(): string {
   const env = "\n\n【环境】看不到主分支对话；不查环境变量；不执行 git 操作";
   const flow = autoDriving
     ? "\n\n【收尾】直接输出完整报告，别调 task"
-    : "\n\n【收尾】先输出完整报告，再调 task(action: \"finish\")";
+    : "\n\n【收尾】先输出完整报告，再调 task_control(action: \"finish\")";
   return env + flow;
 }
 
@@ -435,7 +435,7 @@ async function startTask(
 ): Promise<string | null> {
   const task = pendingTask(ctx.sessionManager);
   if (!task) {
-    ctx.ui.notify("没有待执行的任务。先用 push-task 排队。", "warning");
+    ctx.ui.notify("没有待执行的任务。先用 push_task 排队。", "warning");
     return null;
   }
 

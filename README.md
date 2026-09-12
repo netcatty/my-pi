@@ -70,12 +70,12 @@
 
 ### subtasks — 伪 subagent
 
-用 session tree 实现任务分支：`push-task` 入队、`task` 在独立分支执行并带回结果。
+用 session tree 实现任务分支：`push_task` 入队、`task_control` 在独立分支执行并带回结果。
 
 | 工具 | 作用 |
 |------|------|
-| `push-task` | 把自包含任务入队（不执行） |
-| `task` | `start` / `finish` / `abort` / `discard` / `auto` |
+| `push_task` | 把自包含任务入队（不执行） |
+| `task_control` | `start` / `finish` / `abort` / `discard` / `auto` |
 
 **文件**：`index.ts`
 
