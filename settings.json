@@ -28,6 +28,9 @@
     "npm:pi-mcp-adapter",
     "npm:@gotgenes/pi-permission-system",
     "npm:@juicesharp/rpiv-ask-user-question",
+    "git:github.com/netcatty/pi-models-sync",
+    "git:github.com/netcatty/pi-subtasks",
+    "git:github.com/netcatty/pi-tools",
     "npm:@wayner6/pi-usage"
   ],
   "quietStartup": true,

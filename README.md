@@ -21,10 +21,7 @@
 ├── mcp.example.json       # MCP 配置模板（真实 mcp.json 不入库）
 ├── pi-usage/
 │   └── config.json        # pi-usage 用量面板配置
-├── extensions/            # 本地扩展与第三方扩展的配置
-│   ├── models-sync/           # models.json 热同步（/reload 不重读模型，靠它）
-│   ├── subtasks/              # 伪 subagent：push-task / task 任务分支
-│   ├── tools/                 # /tools 命令，交互式启停工具
+├── extensions/            # 第三方扩展的配置（本地扩展已拆为独立仓库，见下）
 │   ├── pi-permission-system/
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
@@ -47,43 +44,40 @@
 ├── models-store.json      # 运行时状态
 ├── trust.json             # 信任状态
 ├── sessions/              # 会话记录
-├── npm/  bin/  git/  state/
+├── npm/  bin/  state/     # 依赖与运行时
+├── git/                   # git: 包的克隆位置
 ├── extensions/tty7/       # 机器生成的扩展
 └── pi-usage/skill-usage.jsonl
 ```
+
+### 独立仓库（自行维护的 pi 扩展）
+
+三个本地扩展已拆出，通过 `settings.json` 的 `packages` 以 `git:` 引用：
+
+| 仓库 | 作用 |
+|------|------|
+| [`netcatty/pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` / `task_control` 任务分支 |
+| [`netcatty/pi-models-sync`](https://github.com/netcatty/pi-models-sync) | `models.json` 热同步（`/reload` 不重读模型） |
+| [`netcatty/pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
+
+**不带 ref 引用** → 跟着默认分支：改完代码 push，跑 `pi update --extensions` 即生效。
+包会 clone 到 `~/.pi/agent/git/`（已 gitignore）。新机器启动时自动安装。
 
 ---
 
 ## 🧩 扩展说明
 
-### models-sync — 模型热同步
+### 自行维护的三个 pi 扩展
 
-把 `~/.pi/agent/models.json` 同步进当前会话。
+已拆为独立仓库，通过 `settings.json` 的 `packages` 以 `git:` 引用。**代码不在本仓库**。
 
-**解决的问题**：
-
-1. `/reload` 不会重读 `models.json`
-2. 已打开的会话不监听该文件
-3. 内置 provider（如 `deepseek`）会把 `models-store.json` 里的远程模型叠加到自定义列表上，导致自定义 `thinkingLevelMap`、`cost` 被覆盖
-
-**文件**：`index.ts`（入口）、`models-sync.ts`（watch + 合并逻辑）
-
-### subtasks — 伪 subagent
-
-用 session tree 实现任务分支：`push_task` 入队、`task_control` 在独立分支执行并带回结果。
-
-| 工具 | 作用 |
+| 仓库 | 作用 |
 |------|------|
-| `push_task` | 把自包含任务入队（不执行） |
-| `task_control` | `start` / `finish` / `abort` / `discard` / `auto` |
+| [`pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` 入队、`task_control` 驱动分支 |
+| [`pi-models-sync`](https://github.com/netcatty/pi-models-sync) | 把 `models.json` 热同步进会话 |
+| [`pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
-**文件**：`index.ts`
-
-### tools — 工具启停
-
-提供 `/tools` 命令，交互式启用/禁用工具。选择跨会话持久化，并遵循分支导航。
-
-**文件**：`index.ts`、`tools.ts`
+开发时在 `D:\code\pi-extensions\<repo>` 改，push 后 `pi update --extensions` 生效。
 
 ### pi-permission-system（配置）
 
@@ -164,25 +158,31 @@
 | `markdown.mermaid` | `final` | Mermaid 仅在最终输出渲染 |
 | `fullscreenExitOutput` | `transcript` | 退出全屏时输出记录 |
 
-### packages（需单独安装）
+### packages（依赖包）
+
+`settings.json` 的 `packages` 声明全部依赖。**pi 在加载资源时会自动安装缺失的**——新机器上克隆后直接启动即可。
+
+手动补装：
 
 ```powershell
-pi install npm:pi-open-tui
-pi install npm:pi-tool-display
-pi install npm:pi-mcp-adapter
-pi install npm:@gotgenes/pi-permission-system
-pi install npm:@juicesharp/rpiv-ask-user-question
-pi install npm:@wayner6/pi-usage
+Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty packages |
+  ForEach-Object { pi install $_ }
 ```
 
 | 包 | 作用 |
 |----|------|
-| `pi-open-tui` | 自定义 TUI 与 footer |
-| `pi-tool-display` | 工具输出渲染 |
-| `pi-mcp-adapter` | MCP 适配器（`mcp` / `mcpScript` 工具） |
-| `@gotgenes/pi-permission-system` | 权限系统 |
-| `@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
-| `@wayner6/pi-usage` | 用量/余额面板 |
+| `npm:pi-open-tui` | 自定义 TUI 与 footer |
+| `npm:pi-tool-display` | 工具输出渲染 |
+| `npm:pi-mcp-adapter` | MCP 适配器（`mcp` / `mcpScript` 工具） |
+| `npm:@gotgenes/pi-permission-system` | 权限系统 |
+| `npm:@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
+| `npm:@wayner6/pi-usage` | 用量/余额面板 |
+| `git:netcatty/pi-subtasks` | 伪 subagent（本人维护） |
+| `git:netcatty/pi-models-sync` | models.json 热同步（本人维护） |
+| `git:netcatty/pi-tools` | `/tools` 工具启停（本人维护） |
+
+> `git:` 包**不带 ref** → 跟随默认分支。改完代码 push，跑 `pi update --extensions` 即生效。
+> 要钉版本就写 `@v1.0.0`，但那样必须 `pi install ...@新ref` 才能前进。
 
 ### mcp.json（⚠️ 不纳入仓库）
 
@@ -292,13 +292,10 @@ cd ~/.pi/agent
 #    core.hooksPath 是本地配置，不会随克隆附带，必须手动跑一次
 git config core.hooksPath .githooks
 
-# 3) 安装依赖包
-pi install npm:pi-open-tui
-pi install npm:pi-tool-display
-pi install npm:pi-mcp-adapter
-pi install npm:@gotgenes/pi-permission-system
-pi install npm:@juicesharp/rpiv-ask-user-question
-pi install npm:@wayner6/pi-usage
+# 3) 依赖包：settings.json 的 packages 已声明全部 9 个
+#    pi 在加载资源时会自动安装缺失的（含 git: 的三个扩展）；若未生效就手动补：
+Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty packages |
+  ForEach-Object { pi install $_ }
 
 # 4) 建本地配置（两者都不入库，从模板改）
 cp models.example.json models.json
@@ -325,14 +322,23 @@ pi
 
 ### 新增扩展 / skill
 
-直接建在 `extensions/` 或 `skills/` 下即可——它们已在跟踪范围，`git add` 后就会被纳管。
+**skill**：直接建在 `skills/` 下，`git add` 后即被纳管。
+
+**扩展**：分两种
+
+| 类型 | 放哪 | 同步方式 |
+|------|------|----------|
+| 自己的项目 | `D:\code\pi-extensions\<repo>` + `settings.json` 加 `git:` 引用 | `pi update --extensions` |
+| 一次性小扩展 | 直接建在 `extensions/` 下 | `git add` 即纳管 |
 
 例外（已在 `.gitignore`）：
 
 - `extensions/tty7/` —— 由 tty7 工具自动生成（头行写着 `generated by tty7, do not edit`）
 - 含密钥的扩展配置 —— 请改用 `*.example.json` + 占位符的模式
 
----## 🔒 安全约定
+---
+
+## 🔒 安全约定
 
 **本仓库绝不跟踪**：
 
