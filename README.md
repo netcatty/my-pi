@@ -77,7 +77,7 @@
 | [`pi-models-sync`](https://github.com/netcatty/pi-models-sync) | 把 `models.json` 热同步进会话 |
 | [`pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
-开发时在 `D:\code\pi-extensions\<repo>` 改，push 后 `pi update --extensions` 生效。
+开发时在本地克隆的仓库里改，push 后 `pi update --extensions` 生效。
 
 ### pi-permission-system（配置）
 
@@ -202,10 +202,10 @@ Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty pac
 >
 > | 实际 | 模板 | 原因 |
 > |------|------|------|
-> | `D:\program\...\node.exe` | `npx` | 避免硬编码 node 安装路径 |
-> | `D:\program\...\chrome-devtools-mcp.js` | `-y chrome-devtools-mcp@latest` | 走 npm 解析 |
+> | node 的绝对路径 | `npx` | 避免硬编码安装路径 |
+> | `chrome-devtools-mcp.js` 的绝对路径 | `-y chrome-devtools-mcp@latest` | 走 npm 解析 |
+> | 浏览器可执行文件的绝对路径 | `${CHROME_EXECUTABLE}` | 机器特定 |
 > | 令牌明文 | `${OXIDETERM_MCP_TOKEN}` / `${SIYUAN_TOKEN}` | 占位符 |
-> | `D:\program\mybrowser\...\chrome.exe` | `${CHROME_EXECUTABLE}` | 机器特定 |
 >
 > 若你的环境依赖特定 node 版本或非 npx 安装方式，把模板里的 `npx` 改回绝对路径即可。
 
@@ -328,7 +328,7 @@ pi
 
 | 类型 | 放哪 | 同步方式 |
 |------|------|----------|
-| 自己的项目 | `D:\code\pi-extensions\<repo>` + `settings.json` 加 `git:` 引用 | `pi update --extensions` |
+| 自己的项目 | 独立克隆的仓库 + `settings.json` 加 `git:` 引用 | `pi update --extensions` |
 | 一次性小扩展 | 直接建在 `extensions/` 下 | `git add` 即纳管 |
 
 例外（已在 `.gitignore`）：
