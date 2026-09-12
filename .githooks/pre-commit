@@ -1,9 +1,12 @@
 #!/bin/sh
 # ─────────────────────────────────────────────────────────────
-#  pre-commit：拦截密钥与内部地址
+#  pre-commit：拦截密钥、内部地址与机器特定路径
 #
 #  安装：git config core.hooksPath .githooks
 #  绕过：git commit --no-verify
+#
+#  注意：所有 grep 模式都用 -e 显式传入。模式以 - 开头时
+#        不加 -e 会被 grep 当成选项，直接报错导致检查静默失效。
 # ─────────────────────────────────────────────────────────────
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
@@ -16,7 +19,7 @@ report() {
   printf '      %s\n' "$2"
 }
 
-printf '\n🔍 pre-commit 密钥审计\n\n'
+printf '\n🔍 pre-commit 审计\n\n'
 
 # ── 1. 敏感文件名 ──
 for f in $STAGED; do
@@ -43,30 +46,39 @@ for f in $STAGED; do
   [ -f "$f" ] || continue
 
   # 2a. API key / token 特征
-  HIT=$(grep -nE '--[A-Za-z0-9]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}' "$f" 2>/dev/null | head -3)
+  HIT=$(grep -nE -e 'sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}' "$f" 2>/dev/null | head -3)
   [ -n "$HIT" ] && report "$f" "API key: $(echo "$HIT" | head -1 | cut -c1-80)"
 
   # 2b. 32+ 位十六进制串（排除占位符行）
-  HIT=$(grep -nE '[a-f0-9]{32,}' "$f" 2>/dev/null \
-        | grep -vE '\$\{|\$[A-Z_]+|example\.com|schema|sha256|integrity' | head -3)
+  HIT=$(grep -nE -e '[a-f0-9]{32,}' "$f" 2>/dev/null \
+        | grep -vE -e '\$\{|\$[A-Z_]+|example\.com|schema|sha256|integrity' | head -3)
   [ -n "$HIT" ] && report "$f" "长十六进制串: $(echo "$HIT" | head -1 | cut -c1-80)"
 
   # 2c. 私钥
-  HIT=$(grep -nE -- '-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" 2>/dev/null | head -2)
+  HIT=$(grep -nE -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" 2>/dev/null | head -2)
   [ -n "$HIT" ] && report "$f" "私钥块"
 
   # 2d. token/secret 赋值（值为 12+ 字符的字面量；排除占位符）
-  HIT=$(grep -nEi '(token|secret|password|passwd|api[_-]?key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{12,}["'"'"']' "$f" 2>/dev/null \
-        | grep -vE '\$\{|\$[A-Z_]+|example\.com|your-|placeholder|xxxx|\.\.\.|<[a-z]' | head -3)
+  HIT=$(grep -nEi -e '(token|secret|password|passwd|api[_-]?key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{12,}["'"'"']' "$f" 2>/dev/null \
+        | grep -vE -e '\$\{|\$[A-Z_]+|example\.com|your-|placeholder|xxxx|\.\.\.|<[a-z]' | head -3)
   [ -n "$HIT" ] && report "$f" "明文赋值: $(echo "$HIT" | head -1 | cut -c1-80)"
 
   # 2e. 非公开域名（白名单之外）
-  HIT=$(grep -noE 'https?://[A-Za-z0-9._-]+' "$f" 2>/dev/null \
+  HIT=$(grep -noE -e 'https?://[A-Za-z0-9._-]+' "$f" 2>/dev/null \
         | sed 's|.*https\?://||' \
         | sort -u \
-        | grep -viE '^(github\.com|api\.github\.com|raw\.githubusercontent\.com|api\.deepseek\.com|pi\.dev|linux\.do|json-schema\.org|agentskills\.io|localhost|127\.0\.0\.1|docs\.python\.org|en\.wikipedia\.org|www\.conventionalcommits\.org|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.sheetjs\.com|www\.apache\.org|schemas\.microsoft\.com|manus\.im|skills\.sh|example\.com)$' \
-        | grep -viE '\.example\.com$' | head -3)
+        | grep -viE -e '^(github\.com|api\.github\.com|raw\.githubusercontent\.com|api\.deepseek\.com|pi\.dev|linux\.do|json-schema\.org|agentskills\.io|localhost|127\.0\.0\.1|docs\.python\.org|en\.wikipedia\.org|www\.conventionalcommits\.org|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.sheetjs\.com|www\.apache\.org|schemas\.microsoft\.com|manus\.im|skills\.sh|example\.com)$' \
+        | grep -viE -e '\.example\.com$' | head -3)
   [ -n "$HIT" ] && report "$f" "非白名单域名: $(echo "$HIT" | tr '\n' ' ' | cut -c1-80)"
+
+  # 2f. 机器特定路径 —— 只查 .md（文档不该出现本机目录结构）
+  #     模式要求 `盘符:\` 后紧跟路径字符，避开 `Status:\*\*` 这类正则转义
+  case "$f" in
+    *.md)
+      HIT=$(grep -nE -e '[A-Za-z]:\\[A-Za-z0-9_.]' "$f" 2>/dev/null | head -3)
+      [ -n "$HIT" ] && report "$f" "文档里的机器特定路径: $(echo "$HIT" | head -1 | cut -c1-70)"
+      ;;
+  esac
 done
 
 # ── 结果 ──
