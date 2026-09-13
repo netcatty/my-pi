@@ -1,7 +1,6 @@
 ---
 name: grill-with-docs
 description: 通过反复追问澄清计划或设计，同时生成 CONTEXT.md 术语表和 ADR。
-disable-model-invocation: true
 ---
 
 # Grill With Docs
