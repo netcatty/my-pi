@@ -42,7 +42,7 @@ function mask(secret: string): string {
 const SECRET_KEYS =
   "api[_-]?key|apikey|access[_-]?key|secret[_-]?key|client[_-]?secret|" +
   "auth[_-]?token|access[_-]?token|refresh[_-]?token|bearer[_-]?token|" +
-  "private[_-]?key|secret|password|passwd|passphrase|token";
+  "authorization|authorisation|private[_-]?key|secret|password|passwd|passphrase|token";
 
 /** PEM 私钥块：整体吞掉，边界用有界量词防止病态回溯。 */
 const PRIVATE_KEY_BLOCK =
@@ -54,10 +54,10 @@ const PRIVATE_KEY_BLOCK =
  * 值**必须以引号包裹**，这是刻意的：不加引号限定的话 `const token = getAuthToken()`
  * 会连函数名一起打掉 —— 回溯还会让它只打掉后半截。无引号的凭据交给 BARE_TOKEN
  * 按前缀识别，两条规则合起来覆盖 dotenv 的常见写法。
- * 保留键名与引号，只吃值；`\2` 要求首尾同种引号。
+ * 保留键名与引号，只吃值；`\2` 要求首尾同种引号；值里出现 `*` 视为已脱敏，跳过。
  */
 const KEY_VALUE = new RegExp(
-  `(["']?\\b(?:${SECRET_KEYS})\\b["']?\\s*[:=]\\s*)(["'])([^"'\\r\\n]{8,})\\2`,
+  `(["']?\\b(?:${SECRET_KEYS})\\b["']?\\s*[:=]\\s*)(["'])([^"'\\r\\n*]{8,})\\2`,
   "gi",
 );
 
@@ -71,8 +71,8 @@ const BEARER = /\b(Bearer\s+)([A-Za-z0-9_\-./=]{16,})/gi;
 /** JWT：三段 base64url。 */
 const JWT = /\beyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{4,}/g;
 
-/** URL 内嵌凭据：`scheme://user:pass@host`。 */
-const URL_CRED = /\b([a-z][a-z0-9+.-]*:\/\/[^\s/?#@]+:)([^\s/?#@]{3,})(@)/gi;
+/** URL 内嵌凭据：`scheme://user:pass@host`。密码要求 ≥8 字符，避免把文档里的示例 URL 误打。 */
+const URL_CRED = /\b([a-z][a-z0-9+.-]*:\/\/[^\s/?#@]+:)([^\s/?#@]{8,})(@)/gi;
 
 /** 对一段文本做全量脱敏，返回替换次数以便调用方决定要不要回写。 */
 export function redact(input: string): { text: string; count: number } {
@@ -90,9 +90,11 @@ export function redact(input: string): { text: string; count: number } {
   };
 
   sub(PRIVATE_KEY_BLOCK, () => `-----BEGIN PRIVATE KEY-----${STARS}-----END PRIVATE KEY-----`);
+  // BEARER 先于 KEY_VALUE：`"Authorization": "Bearer sk-..."` 按 Bearer 语义处理一次，
+  // 得到 `Bearer sk-********`。KEY_VALUE 的值字符类排除 `*`，故不会对已脱敏的值再打一遍。
+  sub(BEARER, (_m, head, value) => `${head}${mask(value)}`);
   sub(KEY_VALUE, (_m, head, quote, value) => `${head}${quote}${mask(value)}${quote}`);
   sub(BARE_TOKEN, (m) => mask(m));
-  sub(BEARER, (_m, head, value) => `${head}${mask(value)}`);
   sub(JWT, () => STARS);
   sub(URL_CRED, (_m, head, _pass, at) => `${head}${STARS}${at}`);
 
