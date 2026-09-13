@@ -3,28 +3,21 @@
   "debugLog": false,
   "permissionReviewLog": false,
   "yoloMode": false,
-
   "permission": {
     "*": "allow",
-
     "external_directory": {
       "*": "ask"
     },
-
     "path": {
       "*": "allow",
-
       "*.env": "deny",
       "*.env.*": "deny",
       "*.env.example": "allow",
-
       "~/.ssh/*": "deny",
-
       "~/.pi/agent/auth.json": "deny",
       "~/.pi/agent/models.json": "deny",
       "~/.pi/agent/models-store.json": "deny",
       "~/.pi/agent/mcp.json": "deny",
-
       "~/.pi/agent/settings.json": "ask",
       "~/.pi/agent/trust.json": "ask",
       "~/.pi/agent/SYSTEM.md": "ask",
@@ -33,10 +26,8 @@
       "~/.pi/agent/npm/package-lock.json": "ask",
       "~/.pi/agent/extensions/pi-permission-system/config.json": "ask"
     },
-
     "bash": {
       "*": "allow",
-
       "cmd *": "ask",
       "cmd.exe *": "ask",
       "CMD *": "ask",
@@ -54,14 +45,12 @@
       "dash *": "ask",
       "zsh *": "ask",
       "fish *": "ask",
-
       "rm *": "ask",
       "del *": "ask",
       "erase *": "ask",
       "rd *": "ask",
       "rmdir *": "ask",
       "mv *": "ask",
-
       "git clean *": "ask",
       "git reset --hard *": "ask",
       "git checkout -- *": "ask",
@@ -69,7 +58,6 @@
       "git branch -D *": "ask",
       "git stash drop *": "ask",
       "git stash clear *": "ask",
-
       "git push *": "ask",
       "gh pr create *": "ask",
       "gh pr merge *": "ask",
@@ -81,13 +69,11 @@
       "yarn npm publish *": "ask",
       "cargo publish *": "ask",
       "twine upload *": "ask",
-
       "ssh *": "ask",
       "scp *": "ask",
       "sftp *": "ask",
       "curl *": "ask",
       "wget *": "ask",
-
       "npx *": "ask",
       "pnpm dlx *": "ask",
       "yarn dlx *": "ask",
@@ -120,9 +106,13 @@
       "cargo install *": "ask",
       "go install *": "ask",
       "gem install *": "ask",
-
       "grep *": "deny",
       "find *": "deny"
+    }
+  },
+  "shellTools": {
+    "powershell": {
+      "commandArgument": "command"
     }
   }
 }

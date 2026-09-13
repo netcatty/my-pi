@@ -96,7 +96,15 @@
 | `~/.pi/agent/settings.json` | `ask` |
 | `external_directory` | `ask` |
 
-> ⚠️ **已知缺口**：`powershell` 不属于 `PATH_BEARING_TOOLS`，被归类为 extension，**不受 `path` 规则约束**。已在 `AGENTS.md` 加自律约束。
+> ✅ **`powershell` 已纳入强制链**：原生 `powershell` 工具默认被归类为 extension（不属 `PATH_BEARING_TOOLS`），**不经过 `path` 规则**。靠 `shellTools` 把它接进 bash 强制链修复：
+>
+> ```json
+> "shellTools": { "powershell": { "commandArgument": "command" } }
+> ```
+>
+> `resolveShellInvocation()` 读到这个映射后，`powershell` 的命令会走与原生 `bash` 相同的链路（命令分解 · 包装器降级 · **path / external_directory 令牌门** · `bash:` 规则）。
+>
+> **为何不误伤**：PowerShell 命令在 tree-sitter-bash 下**全部能解析**（实测 25/25，含哈希表、`if` 块、here-string、`$(...)`、脚本块、反引号续行）。`<unparseable-bash-command>` 的 fail-closed-to-`ask` 不会触发。
 
 ### pi-tool-display（配置）
 

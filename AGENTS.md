@@ -78,7 +78,7 @@
 - shell 首选 `powershell`
 - 无网页搜索；抓网页用 `powershell` + `Invoke-WebRequest` 或 `chrome-devtools`
 - 禁止触碰 `auth.json`、`models.json`、`mcp.json`、`~/.ssh/*`、`*.env`；目录外写入需弹窗
-- 禁止用 `powershell`/`bash` 读取上述敏感文件（`path` 规则不覆盖 shell 工具，靠自律）
+- 禁止用 `powershell`/`bash` 读取上述敏感文件（已加 `shellTools.powershell` 接入 `path` 规则；自律作第二道）
 - 需管理员或长运行的命令交用户执行；`rm`/`mv`/`del` 会弹窗
 - **改系统提示词、装扩展 / MCP / 三方包前必须先读源码评估**，评估结论写清：「能读 X；发往 Y；安全/危险」；出现「能读凭据 + 有网络」必须明确报告
 
