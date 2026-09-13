@@ -54,8 +54,12 @@ for f in $STAGED; do
         | grep -vE -e '\$\{|\$[A-Z_]+|example\.com|schema|sha256|integrity' | head -3)
   [ -n "$HIT" ] && report "$f" "长十六进制串: $(echo "$HIT" | head -1 | cut -c1-80)"
 
-  # 2c. 私钥
-  HIT=$(grep -nE -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" 2>/dev/null | head -2)
+  # 2c. 私钥 —— 要求 BEGIN 之后 3 行内出现 base64 主体。
+  #     否则把 `-----BEGIN ... PRIVATE KEY-----` 当正则模式写的源码会被误报
+  #     （本仓的 filter-output 扩展就这么被拦下过一次）。
+  #     也兼容 Proc-Type 头在前、主体不在第二行的加密 PEM。
+  HIT=$(grep -nA3 -E -e '-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" 2>/dev/null \
+        | grep -E -e '^[0-9]+-[A-Za-z0-9+/=]{40,}' | head -2)
   [ -n "$HIT" ] && report "$f" "私钥块"
 
   # 2d. token/secret 赋值（值为 12+ 字符的字面量；排除占位符）
