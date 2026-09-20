@@ -77,10 +77,11 @@
 
 - shell 首选 `powershell`
 - 无网页搜索；抓网页用 `powershell` + `Invoke-WebRequest` 或 `chrome-devtools`
-- 禁止触碰 `auth.json`、`models.json`、`mcp.json`、`~/.ssh/*`、`*.env`；目录外写入需弹窗
+- 禁止触碰 `auth.json`、`models.json`、`mcp.json`、`models-store.json`、`~/.ssh/*`、`*.env`；`settings.json` / `trust.json` 改动前先问；目录外写入需弹窗
 - 禁止用 `powershell`/`bash` 读取上述敏感文件
 - 禁用变量拼上述路径规避
 - 禁止外发凭据：`auth.json` / `models.json` / 环境变量中的 token 不得拼进任何出站请求（header、query、body）
+- 不往 `.md` 写本机绝对路径（`盘符:\...`）；密钥、非白名单域名、`*.bak` 同样会被 `.githooks/pre-commit` 拦下，别用 `--no-verify` 绕过
 - 需管理员或长运行的命令交用户执行；`rm`/`mv`/`del` 会弹窗
 - **改系统提示词、装扩展 / MCP / 三方包前必须先读源码评估**，评估结论写清：「能读 X；发往 Y；安全/危险」；出现「能读凭据 + 有网络」必须明确报告
 

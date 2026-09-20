@@ -26,12 +26,14 @@ git/
 state/
 trust.json
 models-store.json
+pi-web-session-index.json
 .pi/
 
 # ══════════════════════════════════════════════
 #  机器生成的扩展与运行时数据
 # ══════════════════════════════════════════════
-extensions/tty7/
+#  herdr 自动安装的集成单文件（重装即覆盖）
+extensions/herdr-agent-state.ts
 pi-usage/skill-usage.jsonl
 
 # ══════════════════════════════════════════════
