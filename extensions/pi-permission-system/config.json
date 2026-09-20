@@ -8,6 +8,12 @@
     "external_directory": {
       "*": "ask"
     },
+    "external_directory_read": {
+      "*": "allow"
+    },
+    "external_directory_write": {
+      "*": "ask"
+    },
     "path": {
       "*": "allow",
       "*.env": "deny",
@@ -45,6 +51,22 @@
       "dash *": "ask",
       "zsh *": "ask",
       "fish *": "ask",
+      "Get-Content *": "allow",
+      "gc *": "allow",
+      "cat *": "allow",
+      "type *": "allow",
+      "Select-String *": "allow",
+      "sls *": "allow",
+      "Test-Path *": "allow",
+      "git status": "allow",
+      "git status *": "allow",
+      "git log *": "allow",
+      "git log": "allow",
+      "git diff": "allow",
+      "git diff *": "allow",
+      "git show *": "allow",
+      "git branch *": "allow",
+      "git branch": "allow",
       "rm *": "ask",
       "del *": "ask",
       "erase *": "ask",
@@ -106,8 +128,8 @@
       "cargo install *": "ask",
       "go install *": "ask",
       "gem install *": "ask",
-      "grep *": "deny",
-      "find *": "deny"
+      "grep *": "allow",
+      "find *": "allow"
     }
   },
   "shellTools": {
