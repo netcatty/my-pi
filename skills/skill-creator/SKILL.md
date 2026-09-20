@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: 创建、修改、优化 agent skill（含评估与描述优化）。
+description: 创建、修改、优化 agent skill（含评估与描述优化）
 disable-model-invocation: true
 ---
 

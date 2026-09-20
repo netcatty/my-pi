@@ -1,6 +1,6 @@
 ---
 name: init-agents-md
-description: 扫描项目结构并初始化项目级 AGENTS.md。
+description: 扫描项目结构并初始化项目级 AGENTS.md
 ---
 
 # 初始化 AGENTS.md

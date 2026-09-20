@@ -1,6 +1,6 @@
 ---
 name: add-frontmatter
-description: 为 Markdown 文件添加 frontmatter（title + description）。
+description: 为 Markdown 文件添加 frontmatter（title + description）
 disable-model-invocation: true
 ---
 

@@ -1,7 +1,7 @@
 ---
-disable-model-invocation: true
 name: naming
-description: 按中文描述生成英文标识符（PascalCase）。
+description: 按中文描述生成英文标识符（PascalCase）
+disable-model-invocation: true
 ---
 
 # 标识符命名助手

@@ -1,6 +1,6 @@
 ---
 name: code-review-expert
-description: 审查当前 git 改动（SOLID 违反、安全风险、可执行的改进建议）。
+description: 审查当前 git 改动（SOLID 违反、安全风险、可执行的改进建议）
 ---
 
 # Code Review Expert

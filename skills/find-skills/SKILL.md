@@ -1,6 +1,6 @@
 ---
 name: find-skills
-description: 查找并安装可用的 agent skill。
+description: 查找并安装可用的 agent skill
 disable-model-invocation: true
 ---
 

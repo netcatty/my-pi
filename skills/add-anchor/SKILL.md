@@ -1,6 +1,7 @@
 ---
 name: add-anchor
-description: 为 Markdown 标题添加英文锚点 {#id}，支持单文件或目录批量。
+description: 为 Markdown 标题添加英文锚点 {#id}，支持单文件或目录批量
+disable-model-invocation: true
 ---
 
 # add-anchor

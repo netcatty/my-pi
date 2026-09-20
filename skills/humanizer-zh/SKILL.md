@@ -1,6 +1,6 @@
 ---
 name: humanizer-zh
-description: 去除文本中的 AI 写作痕迹（夸大象征、模糊归因、否定排比、AI 词汇等）。
+description: 去除文本中的 AI 写作痕迹（夸大象征、模糊归因、否定排比、AI 词汇等）
 disable-model-invocation: true
 metadata:
   trigger: 编辑或审阅文本，去除 AI 写作痕迹
