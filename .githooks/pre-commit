@@ -36,7 +36,7 @@ for f in $STAGED; do
       : ;;   # 模板文件放行
     models-store.json|trust.json)
       report "$f" "机器本地状态" ;;
-    *.bak|*.bak-*)
+    *.bak*)
       report "$f" "备份文件" ;;
   esac
 done
