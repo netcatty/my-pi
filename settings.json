@@ -2,7 +2,12 @@
   "compaction": {
     "enabled": true,
     "reserveTokens": 65536,
-    "keepRecentTokens": 40960
+    "keepRecentTokens": 40960,
+    "modelOverrides": {
+      "deepseek/deepseek-flash": {
+        "reserveTokens": 300000
+      }
+    }
   },
   "defaultModel": "deepseek-flash",
   "defaultProvider": "deepseek",
@@ -18,7 +23,7 @@
   ],
   "fullscreenExitOutput": "transcript",
   "hideThinkingBlock": true,
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "0.87.1",
   "markdown": {
     "mermaid": "final"
   },
@@ -31,7 +36,8 @@
     "git:github.com/netcatty/pi-models-sync",
     "git:github.com/netcatty/pi-subtasks",
     "git:github.com/netcatty/pi-tools",
-    "npm:@wayner6/pi-usage"
+    "npm:@wayner6/pi-usage",
+    "npm:pi-extension-watchdog"
   ],
   "quietStartup": true,
   "retry": {

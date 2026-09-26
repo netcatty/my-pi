@@ -38,11 +38,17 @@ function mask(secret: string): string {
 /**
  * 敏感键名。刻意收窄：不纳入 `pwd`(目录)、`key`(泛指) —— 它们在技术文本里太
  * 常见，误伤代价高于漏网代价。
+ *
+ * 2026-09-22 扩入：access / refresh / cookie / auth / credential(s)。起因是
+ * oauth 凭据文件（auth.json 一类）的键名就是 `access` / `refresh`，此前不在
+ * 列表里，能否被打掉完全押在值的前缀上——值一旦是纯 hex/base64 就整段漏进上下文。
+ * `session` 仍排除：session_id 更常是标识符而非密钥。
  */
 const SECRET_KEYS =
   "api[_-]?key|apikey|access[_-]?key|secret[_-]?key|client[_-]?secret|" +
-  "auth[_-]?token|access[_-]?token|refresh[_-]?token|bearer[_-]?token|" +
-  "authorization|authorisation|private[_-]?key|secret|password|passwd|passphrase|token";
+  "auth[_-]?token|access[_-]?token|refresh[_-]?token|bearer[_-]?token|id[_-]?token|" +
+  "authorization|authorisation|private[_-]?key|credentials?|" +
+  "secret|password|passwd|passphrase|token|access|refresh|cookie|auth";
 
 /** PEM 私钥块：整体吞掉，边界用有界量词防止病态回溯。 */
 const PRIVATE_KEY_BLOCK =
@@ -52,18 +58,37 @@ const PRIVATE_KEY_BLOCK =
  * 键值对形态（JSON / yaml / ini / dotenv）。
  *
  * 值**必须以引号包裹**，这是刻意的：不加引号限定的话 `const token = getAuthToken()`
- * 会连函数名一起打掉 —— 回溯还会让它只打掉后半截。无引号的凭据交给 BARE_TOKEN
- * 按前缀识别，两条规则合起来覆盖 dotenv 的常见写法。
- * 保留键名与引号，只吃值；`\2` 要求首尾同种引号；值里出现 `*` 视为已脱敏，跳过。
+ * 会连函数名一起打掉 —— 回溯还会让它只打掉后半截。
+ *
+ * 左边界用 `(?:^|[^A-Za-z0-9])` 而不是 `\b`：`\b` 在 `MY_SECRET_KEY`、
+ * `AWS_ACCESS_KEY_ID` 这类**前缀式环境变量名**上失效（`_` 是词字符，
+ * 于是 `secret` 左侧没有边界），2026-09-22 实测漏网。
  */
 const KEY_VALUE = new RegExp(
-  `(["']?\\b(?:${SECRET_KEYS})\\b["']?\\s*[:=]\\s*)(["'])([^"'\\r\\n*]{8,})\\2`,
+  `((?:^|[^A-Za-z0-9])["']?(?:${SECRET_KEYS})["']?\\s*[:=]\\s*)(["'])([^"'\\r\\n*]{8,})\\2`,
+  "gi",
+);
+
+/**
+ * 无键名键值（dotenv / `env` 输出 / `-Dtoken=…`）。
+ *
+ * 存在的理由：上面那条 KEY_VALUE 要求值**带引号**，于是 `MY_SECRET_KEY=9f8a…`
+ * 这种最常见的一种写法整条漏掉（2026-09-22 实测）。这里按同一套键名判定，
+ * 值要求 ≥16 字符的凭据字符集 —— 仍是「值因为绑它的名字而被打掉」，不做熵猜测。
+ * 已脱敏的值含 `*`，不在字符集内，不会被再打一遍。
+ * 值开头是 `/` 或 `~` 的排除掉：那是路径，不是凭据；值里至少得有一个数字，
+ * 排除 `refresh_token: process.env.REFRESH_TOKEN` 这类**读源码时会大量出现**的
+ * 点号引用链（真凭据极少全字母：64 位 hex 无非数字的概率 ≈ (6/16)^64）。
+ * 代价：全字母的裸值仍会漏，已知残余。
+ */
+const KEY_VALUE_BARE = new RegExp(
+  `((?:^|[^A-Za-z0-9])(?:${SECRET_KEYS})\\b\\s*[:=]\\s*)(?![/~])(?=[A-Za-z0-9_+/.=\\-]*[0-9])([A-Za-z0-9_+/.=\\-]{16,})(?![A-Za-z0-9_+/.=\\-])`,
   "gi",
 );
 
 /** 无键名的裸凭据：按各家的固定前缀识别。 */
 const BARE_TOKEN =
-  /\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{16,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{30,})\b/g;
+  /\b(?:sk-[A-Za-z0-9_-]{12,}|sk_live_[A-Za-z0-9]{16,}|rk_live_[A-Za-z0-9]{16,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{16,}|glpat-[A-Za-z0-9_-]{16,}|npm_[A-Za-z0-9]{36}|pypi-[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|dop_v1_[a-f0-9]{64}|ya29\.[A-Za-z0-9_-]{16,}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{30,})\b/g;
 
 /** `Bearer <token>` 头。 */
 const BEARER = /\b(Bearer\s+)([A-Za-z0-9_\-./=]{16,})/gi;
@@ -94,6 +119,7 @@ export function redact(input: string): { text: string; count: number } {
   // 得到 `Bearer sk-********`。KEY_VALUE 的值字符类排除 `*`，故不会对已脱敏的值再打一遍。
   sub(BEARER, (_m, head, value) => `${head}${mask(value)}`);
   sub(KEY_VALUE, (_m, head, quote, value) => `${head}${quote}${mask(value)}${quote}`);
+  sub(KEY_VALUE_BARE, (_m, head, value) => `${head}${mask(value)}`);
   sub(BARE_TOKEN, (m) => mask(m));
   sub(JWT, () => STARS);
   sub(URL_CRED, (_m, head, _pass, at) => `${head}${STARS}${at}`);

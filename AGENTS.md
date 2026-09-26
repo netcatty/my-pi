@@ -71,12 +71,15 @@
 | 找文件 | `find` | `Get-ChildItem` |
 | 列目录 | `ls` | `dir` |
 
-`powershell` 只用于真 shell：管道、进程、git、跑程序
+shell 默认 `bash` 工具：管道、进程、git、跑程序都用它
+
+- bash 里不写 PowerShell 语法：`2>/dev/null`，不写 `2>$null`
+- bash 里路径用正斜杠：`/d/code/x`、`C:/Users/...`
 
 ## 约束
 
-- shell 首选 `powershell`
-- 无网页搜索；抓网页用 `powershell` + `Invoke-WebRequest` 或 `chrome-devtools`
+- Windows 专有操作（服务/注册表/WMI/ACL/COM、结构化数据）用 `pwsh`，不用 `powershell`
+- 无网页搜索；抓网页用 `bash` + `curl` 或 `chrome-devtools`；Cloudflare 站用 `chrome-devtools`
 - 禁止触碰 `auth.json`、`models.json`、`mcp.json`、`models-store.json`、`~/.ssh/*`、`*.env`；`settings.json` / `trust.json` 改动前先问；目录外写入需弹窗
 - 禁止用 `powershell`/`bash` 读取上述敏感文件
 - 禁用变量拼上述路径规避
