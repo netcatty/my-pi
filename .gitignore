@@ -27,6 +27,8 @@ state/
 trust.json
 models-store.json
 pi-web-session-index.json
+crashes.json
+web-push.json
 .pi/
 
 # ══════════════════════════════════════════════
