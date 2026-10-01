@@ -28,7 +28,8 @@
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
 │       └── config.json        # 工具输出展示（diff 视图、预览行数、MCP 摘要）
-├── skills/                # 16 个自定义 skill（6 个自动注入，10 个仅 /skill: 调用）
+├── skills/                # 17 个自定义 skill（7 个自动注入，10 个仅 /skill: 调用）
+├── themes/noctalia.json   # 界面主题（settings.json 的 theme 指向它）
 ├── archive/               # 已移除的自制资产（备查，不生效）
 │   ├── README.md              # 每项的作用 / 移除原因 / 恢复方式 / 冲突风险
 │   ├── i-have-adhd/           # ADHD 模式扩展与 skill
