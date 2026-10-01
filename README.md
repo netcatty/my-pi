@@ -281,6 +281,17 @@ jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 
 ## 🚀 快速开始
 
+### 分支策略
+
+| 分支 | 角色 | 状态 |
+|------|------|------|
+| `linux` | 当前主线（Linux 本机配置） | **默认分支**，日常提交落在这里 |
+| `main` | Windows 时代的配置存档 | 冻结，不再提交；tag `windows-final` 指向它 |
+
+- 两套配置**不合并**：路径、MCP 命令、skill 脚本都不同（`powershell` 工具、`.ps1` 脚本、盘符路径），合并只会互相覆盖
+- 查 Windows 配置的最终状态：`git tag -n1` 看标注，`git show windows-final`
+- 新机器克隆默认检出 `linux`；旧 Windows 机器继续在 `main` 上即可，两边各自演进
+
 ### 日常更新（就地模式）
 
 仓库就在 `~/.pi/agent/`，改配置后直接提交：
