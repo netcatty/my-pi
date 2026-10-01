@@ -19,18 +19,17 @@
     "ls",
     "grep",
     "find",
-    "powershell"
+    "bash"
   ],
   "fullscreenExitOutput": "transcript",
   "hideThinkingBlock": true,
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "0.99.2",
   "markdown": {
     "mermaid": "final"
   },
   "packages": [
     "npm:pi-open-tui",
     "npm:pi-tool-display",
-    "npm:pi-mcp-adapter",
     "npm:@gotgenes/pi-permission-system",
     "npm:@juicesharp/rpiv-ask-user-question",
     "git:github.com/netcatty/pi-models-sync",
@@ -49,7 +48,7 @@
     }
   },
   "showCacheMissNotices": false,
-  "theme": "dark",
+  "theme": "noctalia",
   "transport": "auto",
   "treeFilterMode": "no-tools",
   "tuiMode": "fullscreen"

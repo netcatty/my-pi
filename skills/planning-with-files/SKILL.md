@@ -12,19 +12,14 @@ Work like Manus: Use persistent markdown files as your "working memory on disk."
 
 ## FIRST: Check for Previous Session (v2.2.0)
 
-**Before starting work**, check for unsynced context from a previous session:
+**Before starting work**, check for unsynced context from a previous session. In pi the equivalent of an external catchup script is resuming the session itself (`/resume` restores the full message tree, including the planning files' edit history). If planning files exist but look stale, use git to find what changed:
 
 ```bash
-# Windows Git Bash (MSYS2)
-powershell -NoProfile -File "$HOME/.pi/agent/skills/planning-with-files/scripts/session-catchup.ps1" "$(pwd)"
+# 上次会话留下的实际改动
+git diff --stat
 ```
 
-```powershell
-# Windows PowerShell
-& "$env:USERPROFILE\.pi\agent\skills\planning-with-files\scripts\session-catchup.ps1" (Get-Location)
-```
-
-If catchup report shows unsynced context:
+If the diff shows unsynced work:
 1. Run `git diff --stat` to see actual code changes
 2. Read current planning files
 3. Update planning files based on catchup + git diff
@@ -179,9 +174,8 @@ Copy these templates to start:
 
 Helper scripts for automation:
 
-- `scripts/init-session.ps1` — 初始化所有规划文件
-- `scripts/check-complete.ps1` — 校验所有阶段完成
-- `scripts/session-catchup.ps1` — 从上次会话恢复上下文
+- `scripts/init-session.sh` — 初始化所有规划文件
+- `scripts/check-complete.sh` — 校验所有阶段完成
 
 ## Advanced Topics
 

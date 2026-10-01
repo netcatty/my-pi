@@ -76,10 +76,10 @@ for f in $STAGED; do
   [ -n "$HIT" ] && report "$f" "非白名单域名: $(echo "$HIT" | tr '\n' ' ' | cut -c1-80)"
 
   # 2f. 机器特定路径 —— 只查 .md（文档不该出现本机目录结构）
-  #     模式要求 `盘符:\` 后紧跟路径字符，避开 `Status:\*\*` 这类正则转义
+  #     匹配盘符路径与 Linux/macOS 家目录绝对路径；要求后紧跟路径字符，避开 `Status:\*\*` 这类正则转义（`/home/<user>/...` 占位不命中）
   case "$f" in
     *.md)
-      HIT=$(grep -nE -e '[A-Za-z]:\\[A-Za-z0-9_.]' "$f" 2>/dev/null | head -3)
+      HIT=$(grep -nE -e '([A-Za-z]:\\[A-Za-z0-9_.])|(/home/[A-Za-z0-9_.-]+/)|(/Users/[A-Za-z0-9_.-]+/)' "$f" 2>/dev/null | head -3)
       [ -n "$HIT" ] && report "$f" "文档里的机器特定路径: $(echo "$HIT" | head -1 | cut -c1-70)"
       ;;
   esac
