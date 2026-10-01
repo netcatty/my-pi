@@ -28,7 +28,7 @@
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
 │       └── config.json        # 工具输出展示（diff 视图、预览行数、MCP 摘要）
-├── skills/                # 17 个自定义 skill（7 个自动注入，10 个仅 /skill: 调用）
+├── skills/                # 11 个自定义 skill（7 个自动注入，4 个仅 /skill: 调用）
 ├── themes/noctalia.json   # 界面主题（settings.json 的 theme 指向它）
 ├── archive/               # 已移除的自制资产（备查，不生效）
 │   ├── README.md              # 每项的作用 / 移除原因 / 恢复方式 / 冲突风险
@@ -47,10 +47,11 @@
 ├── models-store.json      # 运行时状态
 ├── trust.json             # 信任状态
 ├── pi-web-session-index.json  # pi-web 会话索引（每次会话重写）
+├── crashes.json           # 崩溃记录（含本机堆栈路径）
+├── web-push.json          # Web Push 配置（含 VAPID 私钥）
 ├── sessions/              # 会话记录
 ├── npm/  bin/  state/     # 依赖与运行时
 ├── git/                   # git: 包的克隆位置
-├── extensions/herdr-agent-state.ts  # herdr 集成（自动安装，勿手改）
 └── pi-usage/skill-usage.jsonl
 ```
 
@@ -125,13 +126,7 @@
 
 > 打码不是「可以随便读」的许可：`path` 规则仍在前面挡误触，能写 `$HOME` 拼接绕过的写法本来就不该出现。
 
-### herdr-agent-state.ts（机器生成）
-
-终端工具 herdr 自动安装到 `extensions/` 的单文件扩展（头行写明 `installed by herdr`，重装即覆盖）。作用是把 agent 状态经 socket 回报给 herdr。**不要手改**，自定义钩子另建文件。
-
----
-
-## 🎯 Skills（17 个）
+## 🎯 Skills（11 个）
 
 > pi 自动读取 `~/.pi/agent/skills/` 与 `~/.agents/skills/`
 >
@@ -149,19 +144,13 @@
 | `init-agents-md` | 扫描项目结构并初始化项目级 AGENTS.md |
 | `siyuan-note-style` | 思源笔记排版规范（标题层级、表格居中、代码块语言、技术事实保真） |
 
-### 仅命令触发（10 个，零上下文开销）
+### 仅命令触发（4 个，零上下文开销）
 
 | Skill | 功能 | 触发 |
 |-------|------|------|
-| `naming` | 中文描述 → 英文标识符（PascalCase） | `/skill:naming` |
-| `add-anchor` | 为 Markdown 标题加英文锚点 `{#id}` | `/skill:add-anchor` |
-| `humanizer-zh` | 去除中文文本的 AI 写作痕迹 | `/skill:humanizer-zh` |
-| `add-frontmatter` | 为 Markdown 加 frontmatter | `/skill:add-frontmatter` |
 | `skill-creator` | 创建/优化 skill（含评估与描述优化） | `/skill:skill-creator` |
-| `skill-monitor` | 用 GitHub URL 监控远程文件变更 | `/skill:skill-monitor` |
-| `find-skills` | 查找并安装可用 agent skill | `/skill:find-skills` |
-| `github-issue-creator` | 按仓库模板创建带标签的 Issue | `/skill:github-issue-creator` |
-| `pr-creator` | 按仓库模板创建 Pull Request | `/skill:pr-creator` |
+| `github-issue-creator` | 按仓库模板创建带标签的 Issue（需 `gh` CLI） | `/skill:github-issue-creator` |
+| `pr-creator` | 按仓库模板创建 Pull Request（需 `gh` CLI） | `/skill:pr-creator` |
 | `pr-address-comments` | 处理当前分支的 PR 评论（需 `gh` CLI） | `/skill:pr-address-comments` |
 
 ---
@@ -363,7 +352,6 @@ pi
 
 例外（已在 `.gitignore`）：
 
-- `extensions/herdr-agent-state.ts` —— 由 herdr 工具自动生成（头行写着 `installed by herdr`）
 - 含密钥的扩展配置 —— 请改用 `*.example.json` + 占位符的模式
 
 ---
@@ -382,7 +370,7 @@ pi
 | `models-store.json` | 运行时状态，会覆盖自定义模型配置 | 自动生成 |
 | `trust.json` | 信任状态，机器本地 | 自动生成 |
 | `pi-web-session-index.json` | pi-web 会话索引，每次会话重写 | 自动生成 |
-| `extensions/herdr-agent-state.ts` | 由 herdr 工具自动生成，重装即覆盖 | 工具重建 |
+| `crashes.json` / `web-push.json` | 崩溃记录（含本机堆栈路径）与 VAPID 推送私钥 | 自动生成 |
 | `pi-usage/skill-usage.jsonl` | 使用统计 | —— |
 | `mcp-cache.json` 等缓存 | 可重建 | 自动生成 |
 | `*.bak` | 备份冗余 | —— |
@@ -434,7 +422,7 @@ git grep -hnE "https?://" -- '*.json' | grep -vE "github|deepseek|127\.0\.0\.1|l
 
 - **输出**：简体中文；首句即行动；超过一步就编号；结尾给一个可执行的下一步
 - **工作准则**：先核实再动手、外科手术式修改、简洁优先、目标驱动、选型自上而下
-- **环境**：仓库就地纳管在 `~/.pi/agent/`；skills 7 自动 / 10 手动；MCP 5 个按需连接（内置实现 + `codemode` exposure）；三道防线（权限 → 脱敏 → 提交审计）
+- **环境**：仓库就地纳管在 `~/.pi/agent/`；skills 7 自动 / 4 手动；MCP 5 个按需连接（内置实现 + `codemode` exposure）；三道防线（权限 → 脱敏 → 提交审计）
 - **工作流**：普通功能 → 编码 → `/skill:code-review-expert` → `/skill:gencom`；复杂功能先 `/skill:planning-with-files`；`ta#` 待办；`push_task` + `task_control` 跑独立上下文任务
 - **工具分工**：读文件用 `read`、搜内容用 `grep`、找文件用 `find`、列目录用 `ls`、批量 MCP 调用用 `codemode`；shell 一律用 `bash`
 - **约束**：不碰 `auth.json` / `models.json` / `mcp.json` / `models-store.json` / `~/.ssh/*` / `*.env`；`settings.json` / `trust.json` 改前先问；不往 `.md` 写本机绝对路径
