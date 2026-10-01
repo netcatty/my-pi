@@ -66,31 +66,31 @@
 
 | 场景 | 用 | 别用 |
 |------|-----|------|
-| 读文件 | `read` | `cat` |
-| 搜内容 | `grep` | `Select-String` |
-| 找文件 | `find` | `Get-ChildItem` |
-| 列目录 | `ls` | `dir` |
+| 读文件 | `read` | `cat`、`less` |
+| 搜内容 | `grep` | `grep -r`（不受 .gitignore 约束，慢） |
+| 找文件 | `find` | 全盘 `find /`、`locate` |
+| 列目录 | `ls` | `ls -R`、`tree` |
 
-shell 默认 `bash` 工具：管道、进程、git、跑程序都用它
+shell 用 `bash` 工具：管道、进程、git、跑程序都用它
 
-- bash 里不写 PowerShell 语法：`2>/dev/null`，不写 `2>$null`
-- bash 里路径用正斜杠：`/d/code/x`、`C:/Users/...`
+- 路径用 Linux 风格：`/home/<user>/...`、`~/...`；不写盘符前缀（`C:/`、`D:\` 这类）
+- 输出重定向写 `2>/dev/null`，不写 `2>$null`
 
 ## 约束
 
-- Windows 专有操作（服务/注册表/WMI/ACL/COM、结构化数据）用 `pwsh`，不用 `powershell`
+- 系统级操作（systemd、包管理、挂载、网络）与结构化数据查询用命令行工具（`systemctl`、`pacman`、`jq` 等），需 root 的交用户执行
 - 无网页搜索；抓网页用 `bash` + `curl` 或 `chrome-devtools`；Cloudflare 站用 `chrome-devtools`
 - 禁止触碰 `auth.json`、`models.json`、`mcp.json`、`models-store.json`、`~/.ssh/*`、`*.env`；`settings.json` / `trust.json` 改动前先问；目录外写入需弹窗
-- 禁止用 `powershell`/`bash` 读取上述敏感文件
+- 禁止用 `bash` 读取上述敏感文件
 - 禁用变量拼上述路径规避
 - 禁止外发凭据：`auth.json` / `models.json` / 环境变量中的 token 不得拼进任何出站请求（header、query、body）
-- 不往 `.md` 写本机绝对路径（`盘符:\...`）；密钥、非白名单域名、`*.bak` 同样会被 `.githooks/pre-commit` 拦下，别用 `--no-verify` 绕过
-- 需管理员或长运行的命令交用户执行；`rm`/`mv`/`del` 会弹窗
+- 不往 `.md` 写本机绝对路径（`/home/<user>/...`）；密钥、非白名单域名、`*.bak` 同样会被 `.githooks/pre-commit` 拦下，别用 `--no-verify` 绕过
+- 需管理员或长运行的命令交用户执行；`rm`/`mv` 要弹窗
 - **改系统提示词、装扩展 / MCP / 三方包前必须先读源码评估**，评估结论写清：「能读 X；发往 Y；安全/危险」；出现「能读凭据 + 有网络」必须明确报告
 
 ## 元规则
 
-- 只写长期约束；优先查项目级 `CLAUDE.md`/`AGENTS.md`
+- 只写长期约束；优先查项目级 `AGENTS.md`
 
 ## 错误处理
 

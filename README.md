@@ -96,23 +96,15 @@
 | `external_directory_read` | `allow`（跨目录读不弹窗） |
 | `external_directory_write` | `ask` |
 
-`bash` 层单独一张表（`powershell` 走同一张）：
+`bash` 层单独一张表：
 
 | 命令 | 动作 |
 |------|------|
-| 只读 | `cat` / `Get-Content` / `Select-String` / `Test-Path` / `grep` / `find` · `git status` `log` `diff` `show` `branch` → `allow` |
-| 逃逸面 | `powershell` / `bash` / `sh` 等包装调用、`curl` / `wget` / `npx` / `uvx` / `ssh` / `scp` → `ask` |
-| 写与破坏 | `rm` / `del` / `mv` / 各包管理器 `install`·`publish` / `git push`·`reset --hard`·`clean` / `gh pr create`·`release create` → `ask` |
+| 只读 | `cat` / `grep` / `find` / `head` / `tail` / `wc` · `git status` `log` `diff` `show` `branch` → `allow` |
+| 逃逸面 | `bash` / `sh` 等包装调用、`curl` / `wget` / `npx` / `uvx` / `ssh` / `scp` → `ask` |
+| 写与破坏 | `rm` / `mv` / 各包管理器 `install`·`publish` / `git push`·`reset --hard`·`clean` / `gh pr create`·`release create` → `ask` |
 
-> ✅ **`powershell` 已纳入强制链**：原生 `powershell` 工具默认被归类为 extension（不属 `PATH_BEARING_TOOLS`），**不经过 `path` 规则**。靠 `shellTools` 把它接进 bash 强制链修复：
->
-> ```json
-> "shellTools": { "powershell": { "commandArgument": "command" } }
-> ```
->
-> `resolveShellInvocation()` 读到这个映射后，`powershell` 的命令会走与原生 `bash` 相同的链路（命令分解 · 包装器降级 · **path / external_directory 令牌门** · `bash:` 规则）。
->
-> **为何不误伤**：PowerShell 命令在 tree-sitter-bash 下**全部能解析**（实测 25/25，含哈希表、`if` 块、here-string、`$(...)`、脚本块、反引号续行）。`<unparseable-bash-command>` 的 fail-closed-to-`ask` 不会触发。
+> **`shellTools` 映射已移除**：Windows 时期靠它把原生 `powershell` 工具接进 bash 强制链（`powershell` 属 extension，默认不经过 `path` 规则）。迁到 Linux 后 `defaultTools` 用 `bash`，`config.json` 里的该映射已删除。
 
 ### pi-tool-display（配置）
 
@@ -122,15 +114,15 @@
 
 工具输出**回传 LLM 之前**的凭据脱敏：命中「像密钥的文本」就打码，只留能认出「这是一把钥匙」的前缀。
 
-补的是 `path` 规则的已知缺口——`path` 是**事前**按命令里的路径 token 拦，认不出的写法（如 `$env:USERPROFILE` 拼路径）会落到 `*: allow`；本扩展是**事后**按内容模式拦，不看命令写法。
+补的是 `path` 规则的已知缺口——`path` 是**事前**按命令里的路径 token 拦，认不出的写法（如 `$(echo $HOME)` 拼路径）会落到 `*: allow`；本扩展是**事后**按内容模式拦，不看命令写法。
 
 | 维度 | 结论 |
 |------|------|
-| 能读 | 所有工具的文本输出（`powershell` / `read` / `grep` 都经过这里） |
+| 能读 | 所有工具的文本输出（`bash` / `read` / `grep` 都经过这里） |
 | 发往 | 无网络调用（不引用 `fetch` / `http` / `net` / `child_process`） |
 | 副作用 | 会话 jsonl 里留存的也是打码版——原文不再落盘，有意为之 |
 
-> 打码不是「可以随便读」的许可：`path` 规则仍在前面挡误触，能写 `$env:` 绕过的写法本来就不该出现。
+> 打码不是「可以随便读」的许可：`path` 规则仍在前面挡误触，能写 `$HOME` 拼接绕过的写法本来就不该出现。
 
 ### herdr-agent-state.ts（机器生成）
 
@@ -138,13 +130,13 @@
 
 ---
 
-## 🎯 Skills（16 个）
+## 🎯 Skills（17 个）
 
 > pi 自动读取 `~/.pi/agent/skills/` 与 `~/.agents/skills/`
 >
 > `disable-model-invocation: true` 的 skill **不注入系统提示词**（不占上下文），只能用 `/skill:<name>` 手动触发。
 
-### 自动注入（6 个）
+### 自动注入（7 个）
 
 | Skill | 功能 |
 |-------|------|
@@ -154,6 +146,7 @@
 | `todo-list` | 多级嵌套待办、进度汇总、软删除回收站（`ta#` 触发） |
 | `grill-with-docs` | 反复追问澄清设计，生成 CONTEXT.md 与 ADR |
 | `init-agents-md` | 扫描项目结构并初始化项目级 AGENTS.md |
+| `siyuan-note-style` | 思源笔记排版规范（标题层级、表格居中、代码块语言、技术事实保真） |
 
 ### 仅命令触发（10 个，零上下文开销）
 
@@ -178,11 +171,11 @@
 
 | 配置项 | 值 | 说明 |
 |--------|-----|------|
-| `theme` | `dark` | 界面主题 |
+| `theme` | `noctalia` | 界面主题（`themes/noctalia.json`） |
 | `tuiMode` | `fullscreen` | 全屏 TUI |
 | `defaultProvider` / `defaultModel` | `deepseek` / `deepseek-flash` | 默认模型 |
 | `defaultThinkingLevel` | `medium` | 默认思考等级 |
-| `defaultTools` | `read, write, edit, ls, grep, find, powershell` | 内置工具（Windows 用 powershell 而非 bash） |
+| `defaultTools` | `read, write, edit, ls, grep, find, bash` | 内置工具（shell 层固定用 `bash`） |
 | `compaction` | `enabled` | 上下文压缩（保留 65536 / 近期 40960 tokens） |
 | `retry` | 最多 10 次，基础延迟 10 s，provider 上限 120 s | 自动重试 |
 | `hideThinkingBlock` | `true` | 隐藏思考块 |
@@ -198,16 +191,15 @@
 
 手动补装：
 
-```powershell
-Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty packages |
-  ForEach-Object { pi install $_ }
+```bash
+jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 ```
 
 | 包 | 作用 |
 |----|------|
 | `npm:pi-open-tui` | 自定义 TUI 与 footer |
 | `npm:pi-tool-display` | 工具输出渲染 |
-| `npm:pi-mcp-adapter` | MCP 适配器（`mcp` / `mcpScript` 工具） |
+| `npm:pi-extension-watchdog` | 空闲自动催促继续（`/watchdog`） |
 | `npm:@gotgenes/pi-permission-system` | 权限系统 |
 | `npm:@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
 | `npm:@wayner6/pi-usage` | 用量/余额面板 |
@@ -217,31 +209,35 @@ Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty pac
 
 > `git:` 包**不带 ref** → 跟随默认分支。改完代码 push，跑 `pi update --extensions` 即生效。
 > 要钉版本就写 `@v1.0.0`，但那样必须 `pi install ...@新ref` 才能前进。
+>
+> `pi-mcp-adapter` 已卸载：pi 0.99 起**内置 MCP**（`pi mcp add/list`、`/mcp`）。扩展只要注册 `/mcp` 就会顶替内置实现（pi 那时不读 `mcp.json`），两者不能共存。
 
 ### mcp.json（⚠️ 不纳入仓库）
 
 **本文件含本地服务令牌（OxideTerm、思源）与机器绝对路径，已在 `.gitignore` 中排除。**
 仓库内提供 **`mcp.example.json`** 作为模板。
 
-4 个 MCP 服务器：
+5 个 MCP 服务器（走 pi 内置实现，exposure 全为 `codemode`：工具定义不进 system prompt，按需在 `codemode` 里用 `searchTools()` 调用）：
 
 | 服务器 | 传输 | 说明 |
 |--------|------|------|
-| `chrome-devtools` | stdio | Chrome DevTools 协议（需指定 Chrome/CentBrowser 可执行文件） |
-| `dbx-mcp-server` | stdio | DBX 数据库桌面端集成 |
-| `oxideterm-mcp-server` | stdio | OxideTerm 终端桥接（**需 token**） |
-| `siyuan-mcp-server` | stdio | 思源笔记（**需 token**） |
+| `chrome-devtools` | stdio | Chrome DevTools 协议（`--executablePath` 指向本机 Chrome），30 工具 |
+| `dbx-mcp-server` | stdio | DBX 数据库桌面端集成，25 工具 |
+| `oxideterm-mcp-server` | stdio | OxideTerm 终端桥接（`oxideterm-cli mcp bridge`，**需一次性 token**），91 工具 |
+| `siyuan-mcp-server` | stdio | 思源笔记（第三方 `siyuan-mcp`），69 工具 |
+| `siyuan-official-mcp-server` | http | 思源官方 MCP（`http://127.0.0.1:6806/mcp`，需本机思源内核运行），30 工具 |
 
 > 🔒 **模板相比实际配置做了两类可移植化：**
 >
 > | 实际 | 模板 | 原因 |
 > |------|------|------|
-> | node 的绝对路径 | `npx` | 避免硬编码安装路径 |
-> | `chrome-devtools-mcp.js` 的绝对路径 | `-y chrome-devtools-mcp@latest` | 走 npm 解析 |
-> | 浏览器可执行文件的绝对路径 | `${CHROME_EXECUTABLE}` | 机器特定 |
+> | node 可执行文件绝对路径（fnm 版本目录） | `npx` | fnm/nvm 路径随机器与版本变化 |
+> | MCP 包入口 js 的绝对路径 | `-y <pkg>@latest` | 走 npm 解析 |
+> | 浏览器可执行文件绝对路径 | `${CHROME_EXECUTABLE}` | 机器特定 |
+> | `oxideterm-cli` 桥接命令 | `oxideterm-cli`（PATH） | 安装位置不同 |
 > | 令牌明文 | `${OXIDETERM_MCP_TOKEN}` / `${SIYUAN_TOKEN}` | 占位符 |
 >
-> 若你的环境依赖特定 node 版本或非 npx 安装方式，把模板里的 `npx` 改回绝对路径即可。
+> 本机按绝对路径配置：pi 启动 MCP 子进程的环境里 `npx` 不一定在 PATH 上，且 fnm 的多 shell 路径每次会话都会变。换机器时把路径替换成该机的 node 与包位置即可。
 
 ### models.json（⚠️ 不纳入仓库）
 
@@ -328,8 +324,7 @@ git config core.hooksPath .githooks
 
 # 3) 依赖包：settings.json 的 packages 已声明全部 9 个
 #    pi 在加载资源时会自动安装缺失的（含 git: 的三个扩展）；若未生效就手动补：
-Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty packages |
-  ForEach-Object { pi install $_ }
+jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 
 # 4) 建本地配置（两者都不入库，从模板改）
 cp models.example.json models.json
@@ -405,7 +400,7 @@ pi
 | 私钥块 | `-----BEGIN ... PRIVATE KEY-----`，且要求 BEGIN 后 3 行内出现 base64 主体 |
 | 明文赋值 | `token` / `secret` / `password` / `api_key` 后跟 12+ 字符字面量 |
 | 非白名单域名 | 白名单外的一切 `http(s)://` |
-| 文档里的机器路径 | 只查 `*.md`：`盘符:\` 后跟路径字符（文档不该出现本机目录结构） |
+| 文档里的机器路径 | 只查 `*.md`：盘符路径或 `/home/<user>/`、`/Users/<user>/` 家目录绝对路径（占位符不命中） |
 
 **每个新克隆必须手动启用一次**（`core.hooksPath` 是本地配置，不会随克隆附带）：
 
@@ -419,12 +414,12 @@ git config core.hooksPath .githooks
 
 钩子只看暂存内容；怀疑历史时用这两条：
 
-```powershell
+```bash
 # 密钥与长十六进制串
-git log -p --all | Select-String -Pattern "sk-[A-Za-z0-9]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|[a-f0-9]{32,}"
+git log -p --all | grep -E "sk-[A-Za-z0-9]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|[a-f0-9]{32,}"
 
 # 非公开域名：把白名单换成自己的内部域名
-git grep -hnE "https?://" -- '*.json' | Select-String -NotMatch "github|deepseek|127\.0\.0\.1|localhost|example\.com"
+git grep -hnE "https?://" -- '*.json' | grep -vE "github|deepseek|127\.0\.0\.1|localhost|example\.com"
 ```
 
 > 钩子已自动做这些检查。手动复检只在「怀疑历史」或「想查钩子白名单外的内容」时需要——
@@ -438,7 +433,7 @@ git grep -hnE "https?://" -- '*.json' | Select-String -NotMatch "github|deepseek
 
 - **输出**：简体中文；首句即行动；超过一步就编号；结尾给一个可执行的下一步
 - **工作准则**：先核实再动手、外科手术式修改、简洁优先、目标驱动、选型自上而下
-- **环境**：仓库就地纳管在 `~/.pi/agent/`；skills 6 自动 / 10 手动；MCP 4 个按需连接；三道防线（权限 → 脱敏 → 提交审计）
+- **环境**：仓库就地纳管在 `~/.pi/agent/`；skills 7 自动 / 10 手动；MCP 5 个按需连接（内置实现 + `codemode` exposure）；三道防线（权限 → 脱敏 → 提交审计）
 - **工作流**：普通功能 → 编码 → `/skill:code-review-expert` → `/skill:gencom`；复杂功能先 `/skill:planning-with-files`；`ta#` 待办；`push_task` + `task_control` 跑独立上下文任务
-- **工具分工**：读文件用 `read`、搜内容用 `grep`、找文件用 `find`、列目录用 `ls`、多次 MCP 调用用 `mcpScript`；`powershell` 只用于真 shell
+- **工具分工**：读文件用 `read`、搜内容用 `grep`、找文件用 `find`、列目录用 `ls`、批量 MCP 调用用 `codemode`；shell 一律用 `bash`
 - **约束**：不碰 `auth.json` / `models.json` / `mcp.json` / `models-store.json` / `~/.ssh/*` / `*.env`；`settings.json` / `trust.json` 改前先问；不往 `.md` 写本机绝对路径
