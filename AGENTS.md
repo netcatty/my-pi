@@ -53,8 +53,9 @@
   4. 审查
   5. `/skill:gencom`
 - 现场排障
-  - `oxideterm` 看日志
-  - `dbx` 查数据
+  - `oxideterm-mcp-server` 看日志
+  - `dbx-mcp-server` 查数据
+  - （两者都是 MCP 服务器，用 `codemode` 调；服务器清单在 pi 的 `mcp.json`，不由我改）
   - 其他交给用户
 - 个人待办 `todo-list`（`ta#`）
 - 独立上下文任务
@@ -87,6 +88,7 @@ shell 默认 `bash` 工具：管道、进程、git、跑程序都用它
 - 不往 `.md` 写本机绝对路径（`盘符:\...`）；密钥、非白名单域名、`*.bak` 同样会被 `.githooks/pre-commit` 拦下，别用 `--no-verify` 绕过
 - 需管理员或长运行的命令交用户执行；`rm`/`mv`/`del` 会弹窗
 - **改系统提示词、装扩展 / MCP / 三方包前必须先读源码评估**，评估结论写清：「能读 X；发往 Y；安全/危险」；出现「能读凭据 + 有网络」必须明确报告
+- 升级 pi / 扩展后先验证行为没变：`pi update --extensions` 可能换上砍功能的新版（pi-usage 0.2→0.3 删了 8 个适配器），需要时钉版本 `npm:<pkg>@x.y.z`
 
 ## 元规则
 

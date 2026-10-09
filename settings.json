@@ -19,24 +19,24 @@
     "ls",
     "grep",
     "find",
+    "bash",
     "powershell"
   ],
   "fullscreenExitOutput": "transcript",
   "hideThinkingBlock": true,
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "1.1.0",
   "markdown": {
     "mermaid": "final"
   },
   "packages": [
     "npm:pi-open-tui",
     "npm:pi-tool-display",
-    "npm:pi-mcp-adapter",
     "npm:@gotgenes/pi-permission-system",
     "npm:@juicesharp/rpiv-ask-user-question",
     "git:github.com/netcatty/pi-models-sync",
     "git:github.com/netcatty/pi-subtasks",
     "git:github.com/netcatty/pi-tools",
-    "npm:@wayner6/pi-usage",
+    "npm:@wayner6/pi-usage@0.2.0",
     "npm:pi-extension-watchdog"
   ],
   "quietStartup": true,
@@ -48,6 +48,7 @@
       "maxRetryDelayMs": 120000
     }
   },
+  "shellPath": "D:\\program\\develop\\git\\bash\\bin\\bash.exe",
   "showCacheMissNotices": false,
   "theme": "dark",
   "transport": "auto",
