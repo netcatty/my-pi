@@ -192,7 +192,7 @@ jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 | `npm:pi-extension-watchdog` | 空闲自动催促继续（`/watchdog`） |
 | `npm:@gotgenes/pi-permission-system` | 权限系统 |
 | `npm:@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
-| `npm:@wayner6/pi-usage` | 用量/余额面板 |
+| `npm:@wayner6/pi-usage@0.2.0` | 用量/余额面板（**钉 0.2.0**：0.3.0 只支持 Codex OAuth 与 CLIProxyAPI pi-bridge，砍掉了 DeepSeek 等 7 个 provider 的余额查询） |
 | `git:netcatty/pi-subtasks` | 伪 subagent（本人维护） |
 | `git:netcatty/pi-models-sync` | models.json 热同步（本人维护） |
 | `git:netcatty/pi-tools` | `/tools` 工具启停（本人维护） |
