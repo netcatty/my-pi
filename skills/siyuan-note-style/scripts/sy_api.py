@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""思源内核 HTTP API 直连工具：补齐官方 MCP 没有的三个能力。
+"""思源内核 HTTP API 直连工具：补齐 MCP 没有的三个能力。
 
 用法：
     python3 sy_api.py sql "<SELECT ...>"                 # 自动分页取全，输出 JSON
@@ -11,7 +11,7 @@
 要点（实测）：
   · 本机免 token（**不要**带 Authorization 头，带错 token 反而 401）；若实例设了访问授权码，用 --token 或 SIYUAN_TOKEN 传入，不落盘
   · `/api/query/sql` 返回 JSON，但**固定 32 行上限**（`limit` 参数无效）→ 本脚本自动按 LIMIT/OFFSET 分页取全
-  · `/api/filetree/createDocWithMd` 的 `path` 是**完整路径**，会**自动创建中间父级**（第三方 create_doc 的能力来源；官方 MCP 的 document.create 要求父级已存在）
+  · `/api/filetree/createDocWithMd` 的 `path` 是**完整路径**，会**自动创建中间父级**（MCP 的 document.create 要求父级已存在，这条走内核 API 才拿到该能力）
   · 写操作默认 dry-run，确认后加 --yes
 """
 import argparse

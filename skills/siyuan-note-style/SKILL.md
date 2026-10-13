@@ -19,7 +19,7 @@ description: 思源笔记（SiYuan）排版规范与 MCP 操作要求。写或�
 | 跑格式审计 / 标点扫描 | `scripts/sy_audit.py`、`scripts/punct_scan.py` |
 | 算表格列宽 | `scripts/colwidth.mjs` |
 | 从图标库挑图标并落到本地 | `scripts/fetch_icon.py` |
-| 取全量清单 / 批量搬文档 / 建多级路径文档 | `scripts/sy_api.py`（内核 API，官方 MCP 没这三个能力） |
+| 取全量清单 / 批量搬文档 / 建多级路径文档 | `scripts/sy_api.py`（内核 API，MCP 没这三个能力） |
 
 ## 一、必须做
 

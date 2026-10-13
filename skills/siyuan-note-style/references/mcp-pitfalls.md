@@ -1,11 +1,11 @@
 # MCP 操作要求与坑
 
-默认用官方 MCP。官方没有的三个能力（取全量 SQL 为 JSON、批量搬文档、按指定位置建文档）用 `scripts/sy_api.py`（第五节）。
+默认用 MCP。MCP 没有的三个能力（取全量 SQL 为 JSON、批量搬文档、按指定位置建文档）用 `scripts/sy_api.py`（第五节）。
 
-## 一、官方 MCP
+## 一、MCP 工具
 
 - 调用：`POST /mcp`，需 `Authorization` + 管理员角色，`initialize` 后带 `Mcp-Session-Id`（不 initialize 直接 `GET /mcp` 返回 400）
-- 工具都是 `{action, …}` 形态；动作清单用 `describeTool("mcp__siyuan_official_mcp_server__<工具>")` 查
+- 工具都是 `{action, …}` 形态；动作清单用 `describeTool("mcp__siyuan_mcp_server__<工具>")` 查
 - `sql {action:"query", stmt}`：只读 SELECT；**返回的是查询结果的 markdown 渲染，不是块内容**（读取块内容只能用 `block {action:"get_kramdown"}` 或直接读 `.sy`）；默认最多 100 行，要更多显式 `LIMIT/OFFSET`
 - `sql` 索引有秒级延迟 → 写完不要立即断言，隔几秒复查或读 `.sy` 核对
 - 建文档：`document.create` **会忽略 `path`**（实测给了 `/a/b/名` 仍落在**根级** `/名`，用 `title` 命名）→ 要按位置建一律用 `sy_api.py create --path "/a/b/名"`（内核 `createDocWithMd` 的 path 是完整路径且自动建中间父级）
@@ -69,7 +69,7 @@
 | 陈旧副本 | `<workspace>/data/data/` 下有陈旧嵌套副本，`find` 会误报「已删文档还在」；活树是 `<workspace>/data/<notebook>` |
 | `tools.bash` 输出 | 超过 50 KB 会截断 → 大清单拆成 < 20 KB 分片或加 `--out` 落盘 |
 
-## 五、内核 API 脚本（官方 MCP 没有的能力）
+## 五、内核 API 脚本（MCP 没有的能力）
 
 `scripts/sy_api.py`：直连 `http://127.0.0.1:6806`，本机免 token（不要带 `Authorization` 头，带错反而 401）；设了访问授权码时用 `--token`/`SIYUAN_TOKEN`，不落盘。
 

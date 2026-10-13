@@ -225,7 +225,7 @@ Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty pac
 | `chrome-devtools` | stdio | Chrome DevTools 协议（需指定 Chrome/CentBrowser 可执行文件） |
 | `dbx-mcp-server` | stdio | DBX 数据库桌面端集成 |
 | `oxideterm-mcp-server` | stdio | OxideTerm 终端桥接（**需 token**） |
-| `siyuan-official-mcp-server` | http | 思源官方 MCP（`http://127.0.0.1:6806/mcp`，30 工具） |
+| `siyuan-mcp-server` | http | 思源 MCP（`http://127.0.0.1:6806/mcp`，30 工具） |
 
 > 🔒 **模板相比实际配置做了两类可移植化：**
 >
