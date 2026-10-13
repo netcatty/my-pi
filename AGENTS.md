@@ -86,7 +86,6 @@ shell 用 `bash` 工具：管道、进程、git、跑程序都用它
 - 禁用变量拼上述路径规避
 - 禁止外发凭据：`auth.json` / `models.json` / 环境变量中的 token 不得拼进任何出站请求（header、query、body）
 - 不往 `.md` 写本机绝对路径（`/home/<user>/...`）；密钥、非白名单域名、`*.bak` 同样会被 `.githooks/pre-commit` 拦下，别用 `--no-verify` 绕过
-- 提交前只 `git add` 明确要提交的文件，**别用 `git add -u` 扫工作区**（实测会把手动开的 `yoloMode` 一起提交）；`extensions/pi-permission-system/config.json` 的 `yoloMode` 是**运行时开关**（默认 `false`，用户手动开）→ 提交前判断一次：工作区是 `true` 而仓库是 `false` 时，**不要提交它**
 - 需管理员或长运行的命令交用户执行；`rm`/`mv` 要弹窗
 - **改系统提示词、装扩展 / MCP / 三方包前必须先读源码评估**，评估结论写清：「能读 X；发往 Y；安全/危险」；出现「能读凭据 + 有网络」必须明确报告
 - 升级 pi / 扩展后先验证行为没变：`pi update --extensions` 可能换上砍功能的新版（pi-usage 0.2→0.3 删了 8 个适配器），需要时钉版本 `npm:<pkg>@x.y.z`
