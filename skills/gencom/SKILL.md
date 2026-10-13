@@ -12,6 +12,7 @@ description: 根据 git diff 生成提交信息，遵循项目风格
 3. **严格只读，禁止写操作**：本 skill 只做「读取暂存区 → 生成提交信息」。禁止执行任何改变 git 状态的命令，包括 `git add`、`git restore`、`git reset`、`git commit`、`git rm`、`git stash` 等。**暂存区内容由用户自己管理**，agent 绝不代劳、绝不自行 add。
 4. **不脑补暂存区外内容**：分析仅基于 `git diff --cached` 的输出。工作区未暂存的文件（如 tasks/ 会话文件、Cargo.toml 等）一律不引用、不纳入提交信息，也不主动提示。
 5. **该停就停**：暂存区为空 → 输出「暂存区没有待提交的文件，请先 git add」并结束，绝不自己动手 add。
+6. **运行时状态不入库**：暂存区里若混入运行时/本地状态文件（`extensions/pi-permission-system/config.json` 的 `yoloMode`、`*.jsonl` 用量流水、`crashes.json` / `web-push.json` / `trust.json` 等），**不得写进提交信息**，并按「第 3 步」的提示语让用户把它移出暂存区。
 
 ## 工作流程
 
@@ -33,7 +34,23 @@ git log --oneline -10
 
 风格一致性很重要：项目的提交历史形成了团队约定的风格，遵守它才能保持提交记录可读。判定依据是「最近 5-10 条里同一风格占多数」，不是「出现过」。
 
-### 第 3 步：生成提交信息
+### 第 3 步：核对暂存区（生成信息之前）
+
+`git diff --cached` 里出现下面这类**运行时状态**时，先提示、再生成信息：
+
+| 命中 | 含义 |
+| :--- | :--- |
+| `pi-permission-system/config.json` 的 `yoloMode` 变动 | 用户手动开/关的运行时开关，默认 `false`，与本次变更无关 |
+| `*.jsonl`（如 `pi-usage/skill-usage.jsonl`） | 本地用量流水 |
+| `crashes.json` / `web-push.json` / `trust.json` / `models-store.json` | 机器本地状态（多数已在 `.gitignore`，漏了才提示） |
+
+提示原文：
+
+> 暂存区包含 `<文件>` 的运行时状态变动（与本次变更无关）。建议先 `git restore --staged <文件>`，再重新生成提交信息。
+
+本 skill 严格只读：**只提示，不代执行 `git restore --staged` / `git add`**。
+
+### 第 4 步：生成提交信息
 
 根据 diff 内容选择类型，按模板生成。
 
