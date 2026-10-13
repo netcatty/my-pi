@@ -71,7 +71,7 @@ for f in $STAGED; do
   HIT=$(grep -noE -e 'https?://[A-Za-z0-9._-]+' "$f" 2>/dev/null \
         | sed 's|.*https\?://||' \
         | sort -u \
-        | grep -viE -e '^(github\.com|api\.github\.com|raw\.githubusercontent\.com|api\.deepseek\.com|pi\.dev|linux\.do|json-schema\.org|agentskills\.io|localhost|127\.0\.0\.1|docs\.python\.org|en\.wikipedia\.org|www\.conventionalcommits\.org|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.sheetjs\.com|www\.apache\.org|schemas\.microsoft\.com|manus\.im|skills\.sh|example\.com)$' \
+        | grep -viE -e '^(github\.com|api\.github\.com|raw\.githubusercontent\.com|api\.deepseek\.com|pi\.dev|linux\.do|json-schema\.org|agentskills\.io|localhost|127\.0\.0\.1|docs\.python\.org|en\.wikipedia\.org|www\.conventionalcommits\.org|fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.sheetjs\.com|www\.apache\.org|schemas\.microsoft\.com|manus\.im|skills\.sh|www\.iconfont\.cn|icon\.sucai999\.com|example\.com)$' \
         | grep -viE -e '\.example\.com$' | head -3)
   [ -n "$HIT" ] && report "$f" "非白名单域名: $(echo "$HIT" | tr '\n' ' ' | cut -c1-80)"
 
