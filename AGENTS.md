@@ -72,7 +72,7 @@
 | 找文件 | `find` | `Get-ChildItem` |
 | 列目录 | `ls` | `dir` |
 
-shell 默认 `bash` 工具：管道、进程、git、跑程序都用它
+shell 用 `bash` 工具：管道、进程、git、跑程序都用它
 
 - bash 里不写 PowerShell 语法：`2>/dev/null`，不写 `2>$null`
 - bash 里路径用正斜杠：`/d/code/x`、`C:/Users/...`
