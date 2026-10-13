@@ -207,14 +207,13 @@ jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 **本文件含本地服务令牌（OxideTerm、思源）与机器绝对路径，已在 `.gitignore` 中排除。**
 仓库内提供 **`mcp.example.json`** 作为模板。
 
-5 个 MCP 服务器（走 pi 内置实现，exposure 全为 `codemode`：工具定义不进 system prompt，按需在 `codemode` 里用 `searchTools()` 调用）：
+4 个 MCP 服务器（走 pi 内置实现，exposure 全为 `codemode`：工具定义不进 system prompt，按需在 `codemode` 里用 `searchTools()` 调用）：
 
 | 服务器 | 传输 | 说明 |
 |--------|------|------|
 | `chrome-devtools` | stdio | Chrome DevTools 协议（`--executablePath` 指向本机 Chrome），30 工具 |
 | `dbx-mcp-server` | stdio | DBX 数据库桌面端集成，25 工具 |
 | `oxideterm-mcp-server` | stdio | OxideTerm 终端桥接（`oxideterm-cli mcp bridge`，**需一次性 token**），91 工具 |
-| `siyuan-mcp-server` | stdio | 思源笔记（第三方 `siyuan-mcp`），69 工具 |
 | `siyuan-official-mcp-server` | http | 思源官方 MCP（`http://127.0.0.1:6806/mcp`，需本机思源内核运行），30 工具 |
 
 > 🔒 **模板相比实际配置做了两类可移植化：**

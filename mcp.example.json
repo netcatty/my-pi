@@ -26,13 +26,9 @@
         "OXIDETERM_MCP_TOKEN": "${OXIDETERM_MCP_TOKEN}"
       }
     },
-    "siyuan-mcp-server": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@fromsko/siyuan-mcp-server"],
-      "env": {
-        "SIYUAN_TOKEN": "${SIYUAN_TOKEN}"
-      }
+    "siyuan-official-mcp-server": {
+      "url": "http://127.0.0.1:6806/mcp",
+      "headers": { "Authorization": "Token ${SIYUAN_TOKEN}" }
     }
   }
 }
