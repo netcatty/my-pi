@@ -53,8 +53,9 @@
   4. 审查
   5. `/skill:gencom`
 - 现场排障
-  - `oxideterm` 看日志
-  - `dbx` 查数据
+  - `oxideterm-mcp-server` 看日志
+  - `dbx-mcp-server` 查数据
+  - （两者都是 MCP 服务器，用 `codemode` 调；服务器清单在 pi 的 `mcp.json`，不由我改）
   - 其他交给用户
 - 个人待办 `todo-list`（`ta#`）
 - 独立上下文任务
