@@ -26,7 +26,7 @@
         "OXIDETERM_MCP_TOKEN": "${OXIDETERM_MCP_TOKEN}"
       }
     },
-    "siyuan-official-mcp-server": {
+    "siyuan-mcp-server": {
       "url": "http://127.0.0.1:6806/mcp",
       "headers": { "Authorization": "Token ${SIYUAN_TOKEN}" }
     }
