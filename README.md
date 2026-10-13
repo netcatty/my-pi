@@ -28,7 +28,7 @@
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
 │       └── config.json        # 工具输出展示（diff 视图、预览行数、MCP 摘要）
-├── skills/                # 16 个自定义 skill（6 个自动注入，10 个仅 /skill: 调用）
+├── skills/                # 11 个自定义 skill（7 个自动注入，4 个仅 /skill: 调用）
 ├── archive/               # 已移除的自制资产（备查，不生效）
 │   ├── README.md              # 每项的作用 / 移除原因 / 恢复方式 / 冲突风险
 │   ├── i-have-adhd/           # ADHD 模式扩展与 skill
@@ -154,18 +154,13 @@
 | `todo-list` | 多级嵌套待办、进度汇总、软删除回收站（`ta#` 触发） |
 | `grill-with-docs` | 反复追问澄清设计，生成 CONTEXT.md 与 ADR |
 | `init-agents-md` | 扫描项目结构并初始化项目级 AGENTS.md |
+| `siyuan-note-style` | 思源笔记排版规范与批量维护（标题层级、表格三件套、图标、巡检脚本） |
 
-### 仅命令触发（10 个，零上下文开销）
+### 仅命令触发（4 个，零上下文开销）
 
 | Skill | 功能 | 触发 |
 |-------|------|------|
-| `naming` | 中文描述 → 英文标识符（PascalCase） | `/skill:naming` |
-| `add-anchor` | 为 Markdown 标题加英文锚点 `{#id}` | `/skill:add-anchor` |
-| `humanizer-zh` | 去除中文文本的 AI 写作痕迹 | `/skill:humanizer-zh` |
-| `add-frontmatter` | 为 Markdown 加 frontmatter | `/skill:add-frontmatter` |
 | `skill-creator` | 创建/优化 skill（含评估与描述优化） | `/skill:skill-creator` |
-| `skill-monitor` | 用 GitHub URL 监控远程文件变更 | `/skill:skill-monitor` |
-| `find-skills` | 查找并安装可用 agent skill | `/skill:find-skills` |
 | `github-issue-creator` | 按仓库模板创建带标签的 Issue | `/skill:github-issue-creator` |
 | `pr-creator` | 按仓库模板创建 Pull Request | `/skill:pr-creator` |
 | `pr-address-comments` | 处理当前分支的 PR 评论（需 `gh` CLI） | `/skill:pr-address-comments` |
@@ -230,7 +225,7 @@ Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty pac
 | `chrome-devtools` | stdio | Chrome DevTools 协议（需指定 Chrome/CentBrowser 可执行文件） |
 | `dbx-mcp-server` | stdio | DBX 数据库桌面端集成 |
 | `oxideterm-mcp-server` | stdio | OxideTerm 终端桥接（**需 token**） |
-| `siyuan-mcp-server` | stdio | 思源笔记（**需 token**） |
+| `siyuan-official-mcp-server` | http | 思源官方 MCP（`http://127.0.0.1:6806/mcp`，30 工具） |
 
 > 🔒 **模板相比实际配置做了两类可移植化：**
 >
