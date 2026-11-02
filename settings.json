@@ -10,8 +10,8 @@
       }
     }
   },
-  "defaultModel": "deepseek-flash",
-  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek/deepseek-v4-flash",
+  "defaultProvider": "magpie",
   "defaultThinkingLevel": "medium",
   "defaultTools": [
     "read",
@@ -24,7 +24,7 @@
   ],
   "fullscreenExitOutput": "transcript",
   "hideThinkingBlock": true,
-  "lastChangelogVersion": "1.1.0",
+  "lastChangelogVersion": "1.4.0",
   "markdown": {
     "mermaid": "final"
   },
@@ -33,10 +33,7 @@
     "npm:pi-tool-display",
     "npm:@gotgenes/pi-permission-system",
     "npm:@juicesharp/rpiv-ask-user-question",
-    "git:github.com/netcatty/pi-models-sync",
     "git:github.com/netcatty/pi-subtasks",
-    "git:github.com/netcatty/pi-tools",
-    "npm:@wayner6/pi-usage@0.2.0",
     "npm:pi-extension-watchdog"
   ],
   "quietStartup": true,
