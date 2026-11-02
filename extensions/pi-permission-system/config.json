@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/gotgenes/pi-packages/refs/heads/main/packages/pi-permission-system/schemas/permissions.schema.json",
+  "$schema": "../../npm/node_modules/@gotgenes/pi-permission-system/schemas/permissions.schema.json",
   "debugLog": false,
   "permissionReviewLog": false,
   "yoloMode": false,
