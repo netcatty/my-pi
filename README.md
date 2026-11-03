@@ -19,16 +19,13 @@
 ├── open-tui.json          # pi-open-tui 界面配置（footer 段、telemetry、光标）
 ├── models.example.json    # 模型配置模板（真实 models.json 不入库）
 ├── mcp.example.json       # MCP 配置模板（真实 mcp.json 不入库）
-├── pi-usage/
-│   └── config.json        # pi-usage 用量面板配置
-├── extensions/            # 第三方扩展（自己的三个已拆为独立仓库，见下）
+├── extensions/            # 第三方扩展（自己的已拆为独立仓库，见下）
 │   ├── filter-output/
 │   │   └── index.ts           # 事后凭据脱敏（打码后才回 LLM / 落盘）
 │   ├── pi-permission-system/
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
 │       └── config.json        # 工具输出展示（diff 视图、预览行数、MCP 摘要）
-├── skills/                # 11 个自定义 skill（7 个自动注入，4 个仅 /skill: 调用）
 ├── themes/noctalia.json   # 界面主题（settings.json 的 theme 指向它）
 ├── archive/               # 已移除的自制资产（备查，不生效）
 │   ├── README.md              # 每项的作用 / 移除原因 / 恢复方式 / 冲突风险
@@ -51,19 +48,16 @@
 ├── web-push.json          # Web Push 配置（含 VAPID 私钥）
 ├── sessions/              # 会话记录
 ├── npm/  bin/  state/     # 依赖与运行时
-├── git/                   # git: 包的克隆位置
-└── pi-usage/skill-usage.jsonl
+└── git/                   # git: 包的克隆位置
 ```
 
 ### 独立仓库（自行维护的 pi 扩展）
 
-三个本地扩展已拆出，通过 `settings.json` 的 `packages` 以 `git:` 引用：
+本地扩展已拆出，通过 `settings.json` 的 `packages` 以 `git:` 引用；自定义 skill 统一放在 `~/.agents/skills/`，不在本仓库：
 
 | 仓库 | 作用 |
 |------|------|
 | [`netcatty/pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` / `task_control` 任务分支 |
-| [`netcatty/pi-models-sync`](https://github.com/netcatty/pi-models-sync) | `models.json` 热同步（`/reload` 不重读模型） |
-| [`netcatty/pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
 **不带 ref 引用** → 跟着默认分支：改完代码 push，跑 `pi update --extensions` 即生效。
 包会 clone 到 `~/.pi/agent/git/`（已 gitignore）。新机器启动时自动安装。
@@ -72,15 +66,13 @@
 
 ## 🧩 扩展说明
 
-### 自行维护的三个 pi 扩展
+### 自行维护的 pi 扩展
 
 已拆为独立仓库，通过 `settings.json` 的 `packages` 以 `git:` 引用。**代码不在本仓库**。
 
 | 仓库 | 作用 |
 |------|------|
 | [`pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` 入队、`task_control` 驱动分支 |
-| [`pi-models-sync`](https://github.com/netcatty/pi-models-sync) | 把 `models.json` 热同步进会话 |
-| [`pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
 开发时在本地克隆的仓库里改，push 后 `pi update --extensions` 生效。
 
@@ -128,7 +120,7 @@
 
 ## 🎯 Skills（11 个）
 
-> pi 自动读取 `~/.pi/agent/skills/` 与 `~/.agents/skills/`
+> 技能统一放在 `~/.agents/skills/`，pi 自动发现；本仓库不再保存副本。
 >
 > `disable-model-invocation: true` 的 skill **不注入系统提示词**（不占上下文），只能用 `/skill:<name>` 手动触发。
 
@@ -163,7 +155,7 @@
 |--------|-----|------|
 | `theme` | `noctalia` | 界面主题（`themes/noctalia.json`） |
 | `tuiMode` | `fullscreen` | 全屏 TUI |
-| `defaultProvider` / `defaultModel` | `deepseek` / `deepseek-flash` | 默认模型 |
+| `defaultProvider` / `defaultModel` | `magpie` / `deepseek/deepseek-v4-flash` | 默认模型（走 magpie 本地网关） |
 | `defaultThinkingLevel` | `medium` | 默认思考等级 |
 | `defaultTools` | `read, write, edit, ls, grep, find, bash` | 内置工具（shell 层固定用 `bash`） |
 | `compaction` | `enabled` | 上下文压缩（保留 65536 / 近期 40960 tokens） |
@@ -192,10 +184,7 @@ jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 | `npm:pi-extension-watchdog` | 空闲自动催促继续（`/watchdog`） |
 | `npm:@gotgenes/pi-permission-system` | 权限系统 |
 | `npm:@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
-| `npm:@wayner6/pi-usage@0.2.0` | 用量/余额面板（**钉 0.2.0**：0.3.0 只支持 Codex OAuth 与 CLIProxyAPI pi-bridge，砍掉了 DeepSeek 等 7 个 provider 的余额查询） |
 | `git:netcatty/pi-subtasks` | 伪 subagent（本人维护） |
-| `git:netcatty/pi-models-sync` | models.json 热同步（本人维护） |
-| `git:netcatty/pi-tools` | `/tools` 工具启停（本人维护） |
 
 > `git:` 包**不带 ref** → 跟随默认分支。改完代码 push，跑 `pi update --extensions` 即生效。
 > 要钉版本就写 `@v1.0.0`，但那样必须 `pi install ...@新ref` 才能前进。
@@ -285,10 +274,10 @@ jq -r '.packages[]' settings.json | while read -r p; do pi install "$p"; done
 | 分支 | 角色 | 状态 |
 |------|------|------|
 | `linux` | 当前主线（Linux 本机配置） | **默认分支**，日常提交落在这里 |
-| `main` | Windows 时代的配置存档 | 冻结，不再提交；tag `windows-final` 指向它 |
+| `main` | Windows 本机配置 | 持续维护，按需从 linux 同步通用改动 |
 
 - 两套配置**不合并**：路径、MCP 命令、skill 脚本都不同（`powershell` 工具、`.ps1` 脚本、盘符路径），合并只会互相覆盖
-- 查 Windows 配置的最终状态：`git tag -n1` 看标注，`git show windows-final`
+- 历史存档：tag `windows-final` 指向迁移前的 Windows 配置
 - 新机器克隆默认检出 `linux`；旧 Windows 机器继续在 `main` 上即可，两边各自演进
 
 ### 日常更新（就地模式）
@@ -351,7 +340,7 @@ pi
 
 ### 新增扩展 / skill
 
-**skill**：直接建在 `skills/` 下，`git add` 后即被纳管。
+**skill**：建在 `~/.agents/skills/<name>/`，pi 自动发现；不纳入本仓库。
 
 **扩展**：分两种
 
@@ -381,7 +370,6 @@ pi
 | `trust.json` | 信任状态，机器本地 | 自动生成 |
 | `pi-web-session-index.json` | pi-web 会话索引，每次会话重写 | 自动生成 |
 | `crashes.json` / `web-push.json` | 崩溃记录（含本机堆栈路径）与 VAPID 推送私钥 | 自动生成 |
-| `pi-usage/skill-usage.jsonl` | 使用统计 | —— |
 | `mcp-cache.json` 等缓存 | 可重建 | 自动生成 |
 | `*.bak` | 备份冗余 | —— |
 
