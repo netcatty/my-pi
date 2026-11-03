@@ -167,6 +167,8 @@
 | `markdown.mermaid` | `final` | Mermaid 仅在最终输出渲染 |
 | `fullscreenExitOutput` | `transcript` | 退出全屏时输出记录 |
 
+> `themes/noctalia.json` 由 Noctalia 的 **Pi Agent** 模板生成（模板在 `~/.local/state/noctalia/community-templates/pi-agent/`），色值随桌面调色板变化。手改只会维持到下次模板应用前；`$schema` 若退回旧 GitHub 地址，应改模板里的 `pi-theme.json`，而不是只修产物。
+
 ### packages（依赖包）
 
 `settings.json` 的 `packages` 声明全部依赖。**pi 在加载资源时会自动安装缺失的**——新机器上克隆后直接启动即可。
