@@ -19,16 +19,13 @@
 ├── open-tui.json          # pi-open-tui 界面配置（footer 段、telemetry、光标）
 ├── models.example.json    # 模型配置模板（真实 models.json 不入库）
 ├── mcp.example.json       # MCP 配置模板（真实 mcp.json 不入库）
-├── pi-usage/
-│   └── config.json        # pi-usage 用量面板配置
-├── extensions/            # 第三方扩展（自己的三个已拆为独立仓库，见下）
+├── extensions/            # 第三方扩展（自己的已拆为独立仓库，见下）
 │   ├── filter-output/
 │   │   └── index.ts           # 事后凭据脱敏（打码后才回 LLM / 落盘）
 │   ├── pi-permission-system/
 │   │   └── config.json        # 权限规则（敏感路径 deny、shell 命令 ask）
 │   └── pi-tool-display/
 │       └── config.json        # 工具输出展示（diff 视图、预览行数、MCP 摘要）
-├── skills/                # 11 个自定义 skill（7 个自动注入，4 个仅 /skill: 调用）
 ├── archive/               # 已移除的自制资产（备查，不生效）
 │   ├── README.md              # 每项的作用 / 移除原因 / 恢复方式 / 冲突风险
 │   ├── i-have-adhd/           # ADHD 模式扩展与 skill
@@ -50,18 +47,15 @@
 ├── npm/  bin/  state/     # 依赖与运行时
 ├── git/                   # git: 包的克隆位置
 ├── extensions/herdr-agent-state.ts  # herdr 集成（自动安装，勿手改）
-└── pi-usage/skill-usage.jsonl
 ```
 
 ### 独立仓库（自行维护的 pi 扩展）
 
-三个本地扩展已拆出，通过 `settings.json` 的 `packages` 以 `git:` 引用：
+本地扩展已拆出，通过 `settings.json` 的 `packages` 以 `git:` 引用；自定义 skill 统一放在 `~/.agents/skills/`，不在本仓库：
 
 | 仓库 | 作用 |
 |------|------|
 | [`netcatty/pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` / `task_control` 任务分支 |
-| [`netcatty/pi-models-sync`](https://github.com/netcatty/pi-models-sync) | `models.json` 热同步（`/reload` 不重读模型） |
-| [`netcatty/pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
 **不带 ref 引用** → 跟着默认分支：改完代码 push，跑 `pi update --extensions` 即生效。
 包会 clone 到 `~/.pi/agent/git/`（已 gitignore）。新机器启动时自动安装。
@@ -77,8 +71,6 @@
 | 仓库 | 作用 |
 |------|------|
 | [`pi-subtasks`](https://github.com/netcatty/pi-subtasks) | 伪 subagent：`push_task` 入队、`task_control` 驱动分支 |
-| [`pi-models-sync`](https://github.com/netcatty/pi-models-sync) | 把 `models.json` 热同步进会话 |
-| [`pi-tools`](https://github.com/netcatty/pi-tools) | `/tools` 工具启停面板 |
 
 开发时在本地克隆的仓库里改，push 后 `pi update --extensions` 生效。
 
@@ -140,7 +132,7 @@
 
 ## 🎯 Skills（16 个）
 
-> pi 自动读取 `~/.pi/agent/skills/` 与 `~/.agents/skills/`
+> 技能统一放在 `~/.agents/skills/`，pi 自动发现；本仓库不再保存副本。
 >
 > `disable-model-invocation: true` 的 skill **不注入系统提示词**（不占上下文），只能用 `/skill:<name>` 手动触发。
 
@@ -202,13 +194,10 @@ Get-Content settings.json | ConvertFrom-Json | Select-Object -ExpandProperty pac
 |----|------|
 | `npm:pi-open-tui` | 自定义 TUI 与 footer |
 | `npm:pi-tool-display` | 工具输出渲染 |
-| `npm:pi-mcp-adapter` | MCP 适配器（`mcp` / `mcpScript` 工具） |
+| `npm:pi-extension-watchdog` | 空闲自动催促继续（`/watchdog`） |
 | `npm:@gotgenes/pi-permission-system` | 权限系统 |
 | `npm:@juicesharp/rpiv-ask-user-question` | 结构化提问 `ask_user_question` |
-| `npm:@wayner6/pi-usage` | 用量/余额面板 |
 | `git:netcatty/pi-subtasks` | 伪 subagent（本人维护） |
-| `git:netcatty/pi-models-sync` | models.json 热同步（本人维护） |
-| `git:netcatty/pi-tools` | `/tools` 工具启停（本人维护） |
 
 > `git:` 包**不带 ref** → 跟随默认分支。改完代码 push，跑 `pi update --extensions` 即生效。
 > 要钉版本就写 `@v1.0.0`，但那样必须 `pi install ...@新ref` 才能前进。
@@ -351,7 +340,7 @@ pi
 
 ### 新增扩展 / skill
 
-**skill**：直接建在 `skills/` 下，`git add` 后即被纳管。
+**skill**：建在 `~/.agents/skills/<name>/`，pi 自动发现；不纳入本仓库。
 
 **扩展**：分两种
 
@@ -382,7 +371,6 @@ pi
 | `trust.json` | 信任状态，机器本地 | 自动生成 |
 | `pi-web-session-index.json` | pi-web 会话索引，每次会话重写 | 自动生成 |
 | `extensions/herdr-agent-state.ts` | 由 herdr 工具自动生成，重装即覆盖 | 工具重建 |
-| `pi-usage/skill-usage.jsonl` | 使用统计 | —— |
 | `mcp-cache.json` 等缓存 | 可重建 | 自动生成 |
 | `*.bak` | 备份冗余 | —— |
 
